@@ -215,6 +215,16 @@ tbody tr:hover{background:var(--surface-2)}
 .slide-txt{min-width:0}
 .slide-txt h4{font-size:18px;margin:0 0 11px;color:var(--blue-deep);line-height:1.35}
 .slide-txt p{margin:0;font-size:15.3px;color:var(--ink-2);line-height:1.78}
+/* 개조식 본문 포맷 */
+.fmt-p{margin:0 0 8px;line-height:1.7}
+.fmt-p:last-child{margin-bottom:0}
+.fmt-ul{margin:4px 0 10px;padding-left:4px;list-style:none}
+.fmt-ul:last-child{margin-bottom:0}
+.fmt-ul li{position:relative;padding-left:17px;margin:5px 0;line-height:1.65}
+.fmt-ul li::before{content:"";position:absolute;left:3px;top:9px;width:5px;height:5px;border-radius:50%;background:var(--blue)}
+.slide-desc{font-size:15.2px;color:var(--ink-2)}
+.slide-desc .fmt-p{color:var(--ink-2)}
+.slide-desc b,.slide-emph b,.sec-intro b,.chap-intro b{color:var(--blue-deep);font-weight:700}
 .slide-emph{margin-top:15px;background:var(--blue-softer);border:1px solid var(--line-2);border-left:4px solid var(--blue);border-radius:10px;padding:14px 16px}
 .slide-emph .emph-label{font-size:11.5px;font-weight:800;letter-spacing:.04em;color:var(--blue-strong);display:flex;align-items:center;gap:7px;margin-bottom:7px}
 .slide-emph p{font-size:14.7px;color:var(--ink);line-height:1.75;margin:0}
@@ -1137,6 +1147,19 @@ function inl(s){
     .replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')
     .replace(/\[\[(.+?)\]\]/g,'<span class="hl">$1</span>');
 }
+/* 개조식 본문 렌더: 줄 단위로 '- ' 불릿은 <ul>, 나머지는 줄바꿈 단락으로 */
+function fmt(s){
+  if(s==null||s==='') return "";
+  const lines=String(s).split('\n').map(l=>l.trim()).filter(l=>l.length);
+  let html='', inList=false;
+  for(const ln of lines){
+    const m=ln.match(/^[-•]\s+(.*)$/);
+    if(m){ if(!inList){html+='<ul class="fmt-ul">';inList=true;} html+='<li>'+inl(m[1])+'</li>'; }
+    else { if(inList){html+='</ul>';inList=false;} html+='<p class="fmt-p">'+inl(ln)+'</p>'; }
+  }
+  if(inList) html+='</ul>';
+  return html;
+}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 const NAV=[
@@ -1260,12 +1283,12 @@ function viewSlides(){
       if(!firstSectionSeen){
         // 챕터 전체 제목 표지: 파란 헤더 대신 '챕터 개요' 카드로
         firstSectionSeen=true;
-        if(s.secIntro) h+='<div class="chap-intro" id="slide-'+state.chap+'-'+s.n+'"><div class="ci-label">'+ICON.flow+' '+c.title+' — 챕터 개요</div><p>'+inl(s.secIntro)+'</p></div>';
+        if(s.secIntro) h+='<div class="chap-intro" id="slide-'+state.chap+'-'+s.n+'"><div class="ci-label">'+ICON.flow+' '+c.title+' — 챕터 개요</div>'+fmt(s.secIntro)+'</div>';
         return;
       }
       secIdx++;
       h+='<div class="sec-head" id="slide-'+state.chap+'-'+s.n+'"><span class="sec-ic">'+secIdx+'</span><h3>'+esc(stripParen(s.sectionTitle||s.title))+'</h3></div>';
-      if(s.secIntro) h+='<div class="sec-intro"><div class="si-label">'+ICON.flow+' 이 단락은 이렇게 흘러갑니다</div><p>'+inl(s.secIntro)+'</p></div>';
+      if(s.secIntro) h+='<div class="sec-intro"><div class="si-label">'+ICON.flow+' 이 단락 흐름</div>'+fmt(s.secIntro)+'</div>';
       return; // 섹션 표지는 헤더+흐름 설명만, 장표 이미지는 생략
     }
     const isCover=!s.desc||/\(목차|표지\)|빈 슬라이드|내용이 없는|내용 없는/.test(s.desc);
@@ -1273,8 +1296,8 @@ function viewSlides(){
     h+='<div class="slide-img"><span class="snum" style="background:'+c.color+'">'+s.n+'</span><a href="'+img+'" target="_blank" title="원본 크게 보기"><img loading="lazy" src="'+img+'" alt="slide '+s.n+'"><span class="zoom">'+ICON.zoom+' 크게 보기</span></a></div>';
     if(!isCover){
       h+='<div class="slide-txt"><h4>'+inl(s.title||('슬라이드 '+s.n))+'</h4>';
-      if(s.desc) h+='<p>'+inl(s.desc)+'</p>';
-      if(s.emphasis) h+='<div class="slide-emph"><div class="emph-label">'+ICON.prof+' 교수님 강조 포인트</div><p>'+inl(s.emphasis)+'</p></div>';
+      if(s.desc) h+='<div class="slide-desc">'+fmt(s.desc)+'</div>';
+      if(s.emphasis) h+='<div class="slide-emph"><div class="emph-label">'+ICON.prof+' 교수님 강조 포인트</div>'+fmt(s.emphasis)+'</div>';
       if(s.key) h+='<div class="slide-key">'+ICON.key+'<span>'+inl(s.key)+'</span></div>';
       h+='</div>';
     }

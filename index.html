@@ -1173,6 +1173,25 @@ const NAV=[
 
 let state={view:"home", chap:"file", quizCh:"all", examId:"e2019"};
 
+/* ---- 스크롤·뷰 상태 기억 (새로고침 복원) ---- */
+const SKEY='os_final_study_state';
+let _restoring=false;
+function saveState(){
+  try{
+    localStorage.setItem(SKEY, JSON.stringify({
+      view:state.view, chap:state.chap, quizCh:state.quizCh, examId:state.examId,
+      scroll: window.scrollY||window.pageYOffset||0
+    }));
+  }catch(e){}
+}
+function loadSaved(){
+  try{ return JSON.parse(localStorage.getItem(SKEY)||'null'); }catch(e){ return null; }
+}
+let _saveTimer=null;
+function scheduleSave(){ clearTimeout(_saveTimer); _saveTimer=setTimeout(saveState,250); }
+window.addEventListener('scroll',scheduleSave,{passive:true});
+window.addEventListener('beforeunload',saveState);
+
 /* ---------- table/block renderers ---------- */
 function renderTable(t){
   let h='<div class="tbl-wrap"><table><thead><tr>';
@@ -1399,10 +1418,10 @@ function pickOpt(el){
   else{el.classList.add('wrong');opts.forEach(o=>{if(o.dataset.correct==='1')o.classList.add('correct');});}
 }
 function toggleAns(id){const a=document.getElementById(id);if(a)a.classList.toggle('show');}
-function setChap(c){state.chap=c;render();window.scrollTo({top:0,behavior:'smooth'});}
-function setQuizCh(c){state.quizCh=c;render();}
-function setExam(id){state.examId=id;render();window.scrollTo({top:160,behavior:'smooth'});}
-function go(view,chap){state.view=view;if(chap)state.chap=chap;render();window.scrollTo({top:0,behavior:'smooth'});}
+function setChap(c){state.chap=c;render();window.scrollTo({top:0,behavior:'smooth'});saveState();}
+function setQuizCh(c){state.quizCh=c;render();saveState();}
+function setExam(id){state.examId=id;render();window.scrollTo({top:160,behavior:'smooth'});saveState();}
+function go(view,chap){state.view=view;if(chap)state.chap=chap;render();window.scrollTo({top:0,behavior:'smooth'});saveState();}
 
 function render(){
   // nav
@@ -1439,7 +1458,32 @@ function setupSlideSpy(){
   window.addEventListener('scroll',_spy,{passive:true});
   _spy();
 }
-render();
+
+/* ---- 시작: 저장된 뷰·스크롤 복원 ---- */
+(function init(){
+  const sv=loadSaved();
+  if(sv){
+    if(sv.view) state.view=sv.view;
+    if(sv.chap) state.chap=sv.chap;
+    if(sv.quizCh) state.quizCh=sv.quizCh;
+    if(sv.examId) state.examId=sv.examId;
+  }
+  render();
+  const y=sv&&sv.scroll?sv.scroll:0;
+  if(y>0){
+    // 이미지 lazy-load로 페이지 높이가 늘어나므로, 목표 위치에 닿을 때까지 약 1.6초간 반복 보정
+    let n=0;
+    const iv=setInterval(()=>{
+      window.scrollTo(0,y);
+      n++;
+      // 목표에 충분히 근접했거나 시도 횟수 초과 시 종료
+      if(n>=16 || Math.abs((window.scrollY||0)-y)<3 && (document.body.scrollHeight - y) > window.innerHeight){
+        clearInterval(iv);
+      }
+    },100);
+    window.addEventListener('load',()=>window.scrollTo(0,y),{once:true});
+  }
+})();
 </script>
 </body>
 </html>

@@ -343,9 +343,14 @@ tbody tr:hover{background:var(--surface-2)}
 @media(max-width:480px){.flow{grid-template-columns:1fr}}
 
 /* ---------- Q&A ---------- */
+.qna-unit{margin-bottom:34px}
+.qna-unit-head{font-size:17px;font-weight:800;color:var(--blue-deep);margin:10px 0 16px;padding:10px 16px;background:linear-gradient(90deg,var(--blue-soft),transparent);border-left:5px solid var(--blue);border-radius:8px;display:flex;align-items:center;gap:10px}
+.qna-unit-head span{font-size:12px;background:var(--blue);color:#fff;border-radius:999px;padding:2px 10px;font-weight:700}
+.qna-unit .qna-cat{margin-left:10px;border-left:1px dashed var(--line-2);padding-left:16px}
 .qna-cat{margin-bottom:24px}
 .qna-cat-head{font-size:13px;font-weight:800;letter-spacing:.03em;color:var(--blue-strong);text-transform:uppercase;margin:6px 2px 10px;display:flex;align-items:center;gap:8px}
 .qna-cat-head span{font-size:11.5px;background:var(--blue-soft);color:var(--blue-deep);border-radius:999px;padding:2px 9px;letter-spacing:0}
+@media(max-width:560px){.qna-unit .qna-cat{margin-left:0;padding-left:10px}.qna-unit-head{font-size:15px}}
 .qna{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;background:var(--surface);overflow:hidden}
 .qna.star{border-color:#c5d6f5;box-shadow:0 0 0 1px #dce7fa inset}
 .qna summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;align-items:center;gap:11px;user-select:none;transition:.13s}
@@ -1367,24 +1372,40 @@ function viewExam(isMock){
 }
 
 /* ---------- Q&A ---------- */
+/* 단원(unit) 필터 + 개념(topic) 그룹 2단계. 각 항목: {unit, topic, star, q, a} */
+const QNA_UNITS=[
+  {id:"06", label:"06 파일 관리"},
+  {id:"07", label:"07 입출력 · 디스크 스케줄링"},
+  {id:"08", label:"08 메모리 관리"},
+  {id:"09", label:"09 가상 메모리"},
+  {id:"10", label:"10 프로세스 스케줄링"},
+];
 function viewQna(){
   const list=window.QNA||[];
-  let h='<div class="section-head"><span class="eyebrow">'+ICON.qna+' Q&A</span><h1>공부하다 헷갈린 것 정리</h1><p>실제로 헷갈렸던 질문과 답을 모아뒀습니다. <b>★ 표시는 특히 헷갈리기 쉬운 핵심</b>이에요. 질문을 눌러 펼쳐 보세요.</p></div>';
-  // 카테고리 순서 유지
-  const cats=[]; list.forEach(q=>{ if(!cats.includes(q.cat)) cats.push(q.cat); });
-  // 카테고리 필터
+  let h='<div class="section-head"><span class="eyebrow">'+ICON.qna+' Q&A</span><h1>공부하다 헷갈린 것 정리</h1><p>실제로 헷갈렸던 질문과 답을 <b>개념별로 묶어</b> 정리했습니다. <b>★ 표시는 특히 헷갈리기 쉬운 핵심</b>이에요. 위 단원을 골라 보세요.</p></div>';
+  // 단원 필터 (실제 데이터가 있는 단원만 노출)
+  const usedUnits=QNA_UNITS.filter(u=>list.some(q=>q.unit===u.id));
   h+='<div class="q-controls"><div class="q-filter">';
   h+='<button class="'+(state.qnaCat==='all'?'active':'')+'" onclick="setQnaCat(\'all\')">전체</button>';
-  cats.forEach(c=>h+='<button class="'+(state.qnaCat===c?'active':'')+'" onclick="setQnaCat('+JSON.stringify(c).replace(/"/g,'&quot;')+')">'+esc(c)+'</button>');
+  usedUnits.forEach(u=>h+='<button class="'+(state.qnaCat===u.id?'active':'')+'" onclick="setQnaCat(\''+u.id+'\')">'+esc(u.label)+'</button>');
   h+='</div><div class="q-stat">'+list.length+'문답</div></div>';
 
-  const show=cats.filter(c=>state.qnaCat==='all'||state.qnaCat===c);
-  show.forEach(cat=>{
-    const items=list.filter(q=>q.cat===cat);
-    h+='<div class="qna-cat"><div class="qna-cat-head">'+esc(cat)+' <span>'+items.length+'</span></div>';
-    items.forEach((q,i)=>{
-      const open=(state.qnaCat!=='all')&&i===0; // 단일 카테고리 보기 시 첫 항목 펼침
-      h+='<details class="qna'+(q.star?' star':'')+'"'+(open?' open':'')+'><summary>'+(q.star?'<span class="qstar">★</span>':'<span class="qmark">Q</span>')+'<span class="qtext">'+inl(q.q)+'</span><span class="chev">'+ICON.chev+'</span></summary><div class="qbody">'+fmt(q.a)+'</div></details>';
+  const showUnits=usedUnits.filter(u=>state.qnaCat==='all'||state.qnaCat===u.id);
+  showUnits.forEach(u=>{
+    const uItems=list.filter(q=>q.unit===u.id);
+    if(!uItems.length) return;
+    // 단원 헤더
+    h+='<div class="qna-unit"><div class="qna-unit-head">'+esc(u.label)+' <span>'+uItems.length+'</span></div>';
+    // 개념(topic)별 그룹 — 등장 순서 유지
+    const topics=[]; uItems.forEach(q=>{ if(!topics.includes(q.topic)) topics.push(q.topic); });
+    topics.forEach(tp=>{
+      const items=uItems.filter(q=>q.topic===tp);
+      h+='<div class="qna-cat"><div class="qna-cat-head">'+esc(tp)+' <span>'+items.length+'</span></div>';
+      items.forEach((q,i)=>{
+        const open=(state.qnaCat!=='all')&&i===0; // 단원 보기 시 각 개념 첫 항목 펼침
+        h+='<details class="qna'+(q.star?' star':'')+'"'+(open?' open':'')+'><summary>'+(q.star?'<span class="qstar">★</span>':'<span class="qmark">Q</span>')+'<span class="qtext">'+inl(q.q)+'</span><span class="chev">'+ICON.chev+'</span></summary><div class="qbody">'+fmt(q.a)+'</div></details>';
+      });
+      h+='</div>';
     });
     h+='</div>';
   });
@@ -1461,6 +1482,7 @@ function setupSlideSpy(){
     const qp=new URLSearchParams(location.search);
     if(qp.get('view')) state.view=qp.get('view');
     if(qp.get('exam')) state.examId=qp.get('exam');
+    if(qp.get('qna')) state.qnaCat=qp.get('qna');
   }catch(e){}
   render();
   const y=sv&&sv.scroll?sv.scroll:0;

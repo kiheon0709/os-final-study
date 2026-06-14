@@ -216,5 +216,39 @@ window.QNA = [
 
 {unit:"07", topic:"트랩 처리 (오류 종류 · terminate · page fault)",
  q:"ISR이 핸들러야?",
- a:"**맞음. ISR = 인터럽트 핸들러 = 인터럽트를 처리하는 함수.** 같은 말.\n\n'핸들러'는 넓은 말(=처리 함수)이고, 무엇을 처리하느냐로 이름이 갈림:\n- 인터럽트 → **ISR**(Interrupt Service Routine) = 인터럽트 핸들러\n- 트랩 → trap 핸들러 (div_by_zero 핸들러, page fault 핸들러)\n- 시스템콜 → system call 핸들러\n\n**헷갈리지 말 것**: IDT=주소록(표), ISR=거기서 찾아지는 처리 함수. IDT는 표, ISR은 함수."}
+ a:"**맞음. ISR = 인터럽트 핸들러 = 인터럽트를 처리하는 함수.** 같은 말.\n\n'핸들러'는 넓은 말(=처리 함수)이고, 무엇을 처리하느냐로 이름이 갈림:\n- 인터럽트 → **ISR**(Interrupt Service Routine) = 인터럽트 핸들러\n- 트랩 → trap 핸들러 (div_by_zero 핸들러, page fault 핸들러)\n- 시스템콜 → system call 핸들러\n\n**헷갈리지 말 것**: IDT=주소록(표), ISR=거기서 찾아지는 처리 함수. IDT는 표, ISR은 함수."},
+
+/* ====================== 07 입출력 — I/O 제어 방식 (폴링 / 인터럽트 구동) ====================== */
+{unit:"07", topic:"I/O 제어 방식 (Programmed I/O · 폴링 · I/O 포트)", star:true,
+ q:"Programmed I/O(폴링)가 뭐야?",
+ a:"**CPU가 입출력을 처음부터 끝까지 직접 챙기는 가장 원시적인 방식 = 폴링(polling).**\n\n- CPU가 **status register를 계속 읽으며**('준비됐나?' 반복 = busy waiting) 장치 상태 확인\n- 데이터도 **CPU가 직접** 레지스터↔메모리 복사\n- → CPU가 느린 I/O를 계속 들여다봐서 **낭비 큼**\n\n**발전 단계**: Programmed I/O(폴링) → Interrupt-driven I/O → DMA\n- 폴링: CPU가 다 함 (확인+데이터이동)\n- 인터럽트: 기다림은 인터럽트로 해결, 데이터이동은 아직 CPU\n- DMA: 데이터이동까지 DMA 컨트롤러가 대신 → CPU 완전 해방\n\n**의외의 장점(2025 기출)**: 빠른 I/O엔 오히려 폴링이 유리 — 인터럽트는 context switch 비용이 드는데, I/O가 빨리 끝나면 그 시간에 이미 끝나버림."},
+
+{unit:"07", topic:"I/O 제어 방식 (Programmed I/O · 폴링 · I/O 포트)",
+ q:"I/O 포트가 뭐야? 어디 있어? 하드웨어야?",
+ a:"**I/O 포트 = CPU(host)가 장치 컨트롤러 안의 레지스터에 접근하는 '주소'. 레지스터 실물은 장치 컨트롤러(하드웨어) 안에 있음.**\n\n**I/O 포트의 레지스터 4개**\n- **status register**: host가 읽음 — 장치 상태(busy/ready/error)\n- **control(=command) register**: host가 씀 — 명령\n- **data-in register**: host가 읽음 — 받은 데이터\n- **data-out register**: host가 씀 — 보낼 데이터\n\n**위치**: 전부 장치 컨트롤러(하드웨어) 안. (CPU 안의 레지스터 eax 등과는 다름)\n\n**status/control vs data 구분**: status·control=상태·명령(메타정보), data-in·out=실제 데이터(내용물). 읽기/쓰기 동작은 같아도 담는 내용이 다름."},
+
+{unit:"07", topic:"I/O 제어 방식 (Programmed I/O · 폴링 · I/O 포트)",
+ q:"장치 컨트롤러 = device driver야?",
+ a:"**아니, 완전히 다름. 컨트롤러=하드웨어, 드라이버=소프트웨어.**\n\n- **장치 컨트롤러** = 하드웨어(장치에 붙은 칩). control/status register·버퍼를 가지고 실제 장치를 물리적으로 제어.\n- **device driver** = 소프트웨어(커널 안 코드). 컨트롤러의 레지스터를 '어떻게 만질지 아는' 코드.\n- 드라이버(코드)가 컨트롤러(하드웨어)의 레지스터를 조작 → 장치 동작.\n\n**비유**: 컨트롤러=자동차 엔진+계기판(하드웨어), 드라이버=운전기사(소프트웨어).\n\n**host = driver(쪽)**: 폴링에서 'host가 레지스터 읽고 쓴다'의 host = 본체 쪽(CPU+커널)이고, 실제 조작 주체는 device driver. 상대편이 controller."},
+
+{unit:"07", topic:"I/O 제어 방식 (Programmed I/O · 폴링 · I/O 포트)", star:true,
+ q:"폴링 출력(write) 전체 동작 순서가 어떻게 돼? busy/command-ready 비트는 누가 바꿔?",
+ a:"**레지스터는 host(드라이버)와 컨트롤러가 공유하는 '대화판'. 양쪽이 번갈아 읽고 씀.**\n\n**출력(write) 순서**\n1. host: status의 **busy 비트** 반복 읽기 → 0(clear, 한가함) 될 때까지 대기\n2. host: control의 **write 비트=1** + **data-out에 보낼 바이트** 씀\n3. host: control의 **command-ready=1** ('명령 준비 끝, 가져가!')\n4. 컨트롤러: command-ready 보고 **busy=1** (시작)\n5. 컨트롤러: write 명령+data-out 읽어 실제 출력\n6. 컨트롤러: 끝나면 **command-ready·busy=0** clear\n7. host: busy=0 폴링하다 알아챔\n\n**누가 바꾸나**\n- **busy** = 컨트롤러 상태(컨트롤러가 켜고 끔)\n- **command-ready** = 드라이버→컨트롤러 신호(드라이버가 1로 켜고, 컨트롤러가 처리 완료 후 0으로 끔)\n- → busy·command-ready가 짝지어 핑퐁 동작. 컨트롤러도 자기 담당 비트(status·data-in)는 씀(write 가능). 단 control의 명령 비트는 host만 씀.\n\n※ '한 바이트' = 문자 하나(예: 'A'=0x41). 문자도 결국 바이트."},
+
+/* ====================== 07 입출력 — Interrupt-driven I/O 흐름 ====================== */
+{unit:"07", topic:"Interrupt-driven I/O 흐름 (블록 · 완료 인터럽트 · IRQ)", star:true,
+ q:"I/O 요청하면 왜 바로 블록시켜? 블록 필요 없을 수도 있잖아.",
+ a:"**Interrupt-driven I/O는 블록이 기본. I/O가 느려서 기다리는 동안 CPU를 딴 프로세스에 주려고.**\n\n- I/O는 CPU보다 수천~수만 배 느림 → P1이 결과 기다리며 CPU 잡고 있으면 낭비\n- → P1을 blocked로 빼고 CPU를 P2에게 줌 (CPU 안 놀림)\n\n**'블록 필요 없는 경우' = 폴링(Programmed I/O)**: 빠른 I/O는 블록 안 하고 running 유지가 유리(context switch 비용 절약). → 느린 I/O=인터럽트(블록), 빠른 I/O=폴링(블록X).\n\n**블록은 누가 결정?**: I/O 요청 처리하는 **system call handler**(ISR 아님!). I/O 요청=시스템콜이라, system_call()→sys_call_table→sys_read() 안에서 '오래 걸리니 블록' 판단 → Process Management의 block() 호출."},
+
+{unit:"07", topic:"Interrupt-driven I/O 흐름 (블록 · 완료 인터럽트 · IRQ)", star:true,
+ q:"P2 돌다가 I/O 완료 인터럽트 오면 P2가 왜 커널모드로 들어가?",
+ a:"**'P2가 들어가는' 게 아니라, P2가 잠깐 멈추고 그 자리에서 커널 ISR이 실행되는 것.**\n\n- 인터럽트는 **그때 돌던 프로세스(P2)** 를 멈춤. (P2 잘못이 아니라 마침 CPU 쓰던 게 P2라서 = 'Which process is interrupted? → P2')\n- I/O 완료 처리(데이터 회수, P1을 blocked→ready 깨우기, 우선순위 비교)는 **커널 권한이 필요** → user모드(P2)론 못 함 → 커널모드 전환해 ISR 실행.\n\n**그 후 우선순위 판단**\n- P2가 더 높음 → context switch 없이 P2 계속 running\n- P1이 더 높음 → P2를 ready로, P1을 running\n(슬라이드: If priority of A>B, switch to A; else return to B)"},
+
+{unit:"07", topic:"Interrupt-driven I/O 흐름 (블록 · 완료 인터럽트 · IRQ)",
+ q:"블록은 system call handler, 깨우기는 ISR — Process Management는 뭐야?",
+ a:"**Process Management = 프로세스 상태(running/ready/blocked)와 큐를 실제로 관리하는 커널 부분.** 개념이자 실제 코드/자료구조.\n\n**구성**: PCB들 + ready/blocked 큐 + 스케줄러 + 상태변경 함수(block/wakeup/dispatch).\n\n**역할 분담**\n- **system call handler**(I/O 요청 시): '블록해' 판단·지시 → Process Management가 P1을 running→blocked로 바꾸고 blocked 큐에 넣음\n- **ISR**(I/O 완료 시): 'P1 깨워' 지시 → Process Management가 P1을 blocked→ready로\n- **스케줄러**(Process Management 일부): P1 vs P2 우선순위 비교 → 다음 running 결정\n\n→ handler/ISR = 판단/지시, **Process Management = 실제 상태 변경·큐 조작·스케줄링.**"},
+
+{unit:"07", topic:"Interrupt-driven I/O 흐름 (블록 · 완료 인터럽트 · IRQ)", star:true,
+ q:"IRQ가 뭐야? 완료 신호가 컨트롤러 → 드라이버 → PIC로 가는 거야?",
+ a:"**IRQ(Interrupt ReQuest) = 장치가 CPU에게 '인터럽트 걸게!'라고 보내는 신호(선). 그리고 IRQ는 드라이버를 안 거침.**\n\n**핵심: 경로가 2개**\n- **제어/데이터 경로**: 드라이버 ↔ 컨트롤러 (레지스터로 명령·데이터 주고받기) — 소프트웨어 경로\n- **IRQ(인터럽트) 경로**: 컨트롤러 → PIC → CPU (하드웨어 신호선) — **드라이버 안 거침!**\n\n**왜 드라이버 안 거치나**: IRQ는 전기 신호(하드웨어)라 코드(드라이버)를 '거칠' 수 없음. IRQ로 CPU를 깨운 **다음**, CPU가 ISR(드라이버 완료 처리 코드)을 실행.\n\n**완료 흐름**: 장치 I/O 완료 → 컨트롤러가 IRQ → PIC → CPU → 인터럽트 핸들러 → IDT → ISR(데이터 회수+P1 깨우기) → Process Management → 스케줄러가 우선순위로 다음 프로세스 결정.\n\n**비유**: 컨트롤러의 '완성 벨(IRQ)'이 사장실(CPU)로 직통. 직원(드라이버)은 사장이 들은 뒤 부르면 일함."}
 ];

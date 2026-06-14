@@ -343,6 +343,26 @@ tbody tr:hover{background:var(--surface-2)}
 @media(max-width:480px){.flow{grid-template-columns:1fr}}
 
 /* ---------- Q&A ---------- */
+/* ----- 막판 점검 ----- */
+.fin-sec{margin-bottom:30px}
+.fin-sec-head{font-size:16px;font-weight:800;color:#fff;padding:9px 16px;border-radius:9px;margin-bottom:14px;display:inline-block}
+.fin-blue .fin-sec-head{background:var(--blue)}
+.fin-violet .fin-sec-head{background:var(--violet)}
+.fin-amber .fin-sec-head{background:var(--amber)}
+.fin-green .fin-sec-head{background:#0f9d58}
+.fin-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.fin-card{border:1px solid var(--line-2);border-radius:11px;background:var(--surface);padding:13px 16px 14px}
+.fin-blue .fin-card{border-left:4px solid var(--blue)}
+.fin-violet .fin-card{border-left:4px solid var(--violet)}
+.fin-amber .fin-card{border-left:4px solid var(--amber)}
+.fin-green .fin-card{border-left:4px solid #0f9d58}
+.fin-t{font-size:14.5px;font-weight:800;color:var(--ink);margin-bottom:7px}
+.fin-b{font-size:13.2px;line-height:1.62;color:var(--muted)}
+.fin-b .fmt-p{margin:3px 0}
+.fin-b .fmt-ul{margin:3px 0;padding-left:17px}
+.fin-b .fmt-ul li{margin:2px 0}
+.fin-b b{color:var(--blue-strong)}
+@media(max-width:760px){.fin-grid{grid-template-columns:1fr}}
 .qna-unit{margin-bottom:34px}
 .qna-unit-head{font-size:17px;font-weight:800;color:var(--blue-deep);margin:10px 0 16px;padding:10px 16px;background:linear-gradient(90deg,var(--blue-soft),transparent);border-left:5px solid var(--blue);border-radius:8px;display:flex;align-items:center;gap:10px}
 .qna-unit-head span{font-size:12px;background:var(--blue);color:#fff;border-radius:999px;padding:2px 10px;font-weight:700}
@@ -421,6 +441,7 @@ tbody tr:hover{background:var(--surface-2)}
 <script src="qna_data.js"></script>
 <script src="exams_fig.js"></script>
 <script src="exams_data.js"></script>
+<script src="final_data.js"></script>
 <script>
 /* ============================================================
    DATA — 운영체제 기말 (파일 / 입출력 / 메모리 / 가상메모리 / 스케줄링)
@@ -1095,6 +1116,7 @@ const ICON = {
   flow:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 6h10M4 12h16M4 18h7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M18 3l3 3-3 3M14 15l3 3-3 3" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   qna:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-4 4v-4H4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.4 8.6a2.2 2.2 0 1 1 3.2 2c-.7.4-1 .8-1 1.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="11.6" cy="14" r=".9" fill="currentColor"/></svg>',
   img:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="8.5" cy="9" r="1.6" stroke="currentColor" stroke-width="1.6"/><path d="M5 18l5-5 3 3 3-3 3 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  final:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13H11l-1 9 8.5-11H12z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>',
 };
 const BOXICON={key:ICON.key,tip:ICON.bulb,warn:ICON.warn,trap:ICON.trap};
 const BOXLABEL={key:"핵심",tip:"꿀팁",warn:"주의",trap:"함정"};
@@ -1123,6 +1145,7 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 
 const NAV=[
   {id:"home",label:"홈",icon:ICON.home},
+  {id:"final",label:"막판 점검",icon:ICON.final},
   {id:"slides",label:"슬라이드별 설명",icon:ICON.slides},
   {id:"summary",label:"요약정리",icon:ICON.summary},
   {id:"quiz",label:"연습문제",icon:ICON.quiz},
@@ -1371,6 +1394,21 @@ function viewExam(isMock){
   return h;
 }
 
+/* ---------- 막판 점검 (시험 직전 핵심 요약) ---------- */
+function viewFinal(){
+  const data=window.FINAL_DATA||[];
+  let h='<div class="section-head"><span class="eyebrow">'+ICON.final+' 막판 점검</span><h1>시험 직전, 딱 이것만</h1><p>공부하며 <b>헷갈렸던 핵심</b>만 압축했습니다. 펼쳐져 있으니 쭉 훑으며 막판 점검하세요.</p></div>';
+  data.forEach(s=>{
+    h+='<div class="fin-sec fin-'+(s.color||'blue')+'"><div class="fin-sec-head">'+s.sec+'</div><div class="fin-grid">';
+    s.items.forEach(it=>{
+      h+='<div class="fin-card"><div class="fin-t">'+inl(it.t)+'</div><div class="fin-b">'+fmt(it.b)+'</div></div>';
+    });
+    h+='</div></div>';
+  });
+  h+=footer();
+  return h;
+}
+
 /* ---------- Q&A ---------- */
 /* 단원(unit) 필터 + 개념(topic) 그룹 2단계. 각 항목: {unit, topic, star, q, a} */
 const QNA_UNITS=[
@@ -1439,6 +1477,7 @@ function render(){
   const app=document.getElementById('app');
   let html='';
   if(state.view==='home') html=viewHome();
+  else if(state.view==='final') html=viewFinal();
   else if(state.view==='slides') html=viewSlides();
   else if(state.view==='summary') html=viewSummary();
   else if(state.view==='quiz') html=viewQuiz();

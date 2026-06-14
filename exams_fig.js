@@ -73,39 +73,40 @@ function examFigFileAccessAns(){ // 정답용: 채워짐
 }
 
 /* ========================= 2025 inode 트리 (실제 구조) ========================= */
-/* 디렉토리 구조: / (inode ①=2) → usr(3), mnt(9);  usr(3) → src(10), lib(17), mem(25)
-   블록들: inode2[..,80]  diskblk#②[ 2→".." , 2→"." , ③→? , ④→? ]  inode⑤[..,⑥]
-           diskblk#550[ ⑦→. , 3→.. , ⑧ , ⑨ , ⑩ ] */
+/* 디렉토리 구조: / (inode ①=2) → usr(③=3), mnt(④=9);  usr(3) → src(⑧=10), lib(⑨=17), mem(⑩=25)
+   inode2[i_mode,time,..,80(=②)]   disk block#②[ 2|. , 2|.. , ③| , ④| ]
+   inode⑤(=3)[i_mode,time,..,⑥(=550)]   disk block#550[ ⑦|. , 3|.. , ⑧| , ⑨| , ⑩| ] */
 function _inodeTreeSvg(v){ // v: 값 객체(빈칸이면 '①'식 라벨)
-  var s='<svg viewBox="0 0 760 600" class="figsvg" role="img" aria-label="inode tree">';
-  // 트리 상단
-  s+=_node(330,16,150,40,'/  inode ('+v.i1+')','root');
-  s+=_node(120,96,110,40,'usr (3)','dir');
-  s+=_node(560,96,110,40,'mnt (9)','dir');
-  s+=_node(40,176,100,36,'src (10)','dir');
-  s+=_node(170,176,100,36,'lib (17)','dir');
-  s+=_node(300,176,100,36,'mem (25)','dir');
+  var s='<svg viewBox="0 0 760 520" class="figsvg" role="img" aria-label="inode tree">';
+  // 트리 상단 — 박스 안엔 이름만, 주어진 inode 번호는 박스 '위'에 작게.
+  // 루트(/)의 inode 번호는 빈칸 ① 이므로 박스 위에 (①) 표기.
+  s+=_dnode(320,40,160,42,'/', v.i1);     // 루트: 위에 (①)
+  s+=_dnode(110,150,120,40,'usr', '3');
+  s+=_dnode(560,150,120,40,'mnt', '9');
+  s+=_dnode(40,250,100,36,'src', '10');
+  s+=_dnode(170,250,100,36,'lib', '17');
+  s+=_dnode(300,250,100,36,'mem', '25');
   // edges
-  s+=_edge(380,56,175,96); s+=_edge(420,56,610,96);
-  s+=_edge(165,136,90,176); s+=_edge(175,136,220,176); s+=_edge(185,136,345,176);
-  // 하단 블록 4개 (테이블형)
-  s+=_blk(20,250, 'inode 2', ['i_mode','time','....','80']);
-  s+=_blk(200,250,'disk block #('+v.b2+')', ['2  ..','2  .', v.e3+'  ?', v.e4+'  ?'], 1);
-  s+=_blk(400,250,'inode ('+v.i5+')', ['i_mode','time','....', v.e6]);
-  s+=_blk(560,250,'disk block #550', [v.e7+'  .', '3  ..', v.e8+'  src?', v.e9+'  lib?', v.e10+'  mem?'], 1);
+  s+=_edge(370,82,170,150); s+=_edge(430,82,620,150);
+  s+=_edge(150,190,90,250); s+=_edge(165,190,220,250); s+=_edge(180,190,345,250);
+  // 하단 블록 4개 (각 칸 = inode번호 | 이름)
+  s+=_blk(20,330, 'inode 2', [['','i_mode'],['','time'],['','....'],['','80']]);
+  s+=_blk(200,330,'disk block #('+v.b2+')', [['2','..'],['2','.'],[v.e3,''],[v.e4,'']], 1);
+  s+=_blk(400,330,'inode ('+v.i5+')', [['','i_mode'],['','time'],['','....'],[v.e6,'']]);
+  s+=_blk(560,330,'disk block #550', [[v.e7,''],['3','.'],[v.e8,''],[v.e9,''],[v.e10,'']], 1);
   s+='</svg>';
   return s;
 }
 function examFigInodeTreeQ(){
   var v={i1:'①',b2:'②',i5:'⑤',e3:'③',e4:'④',e6:'⑥',e7:'⑦',e8:'⑧',e9:'⑨',e10:'⑩'};
   return _figWrap('inode/디렉토리 구조 — 빈칸 ①~⑩ (문제)', _inodeTreeSvg(v)+
-    '<div class="fig-note">단서: 한 인덱스 블록당 주소 개수 = 2048 / 4 = <b>512</b>. 디렉토리 데이터 블록에는 <b>(inode번호, 이름)</b> 엔트리가 저장되고, 첫 두 칸은 항상 <b>.</b>(자기)·<b>..</b>(부모)이다. 화살표(이름→inode→데이터블록)를 따라 빈칸을 채우시오.</div>','q');
+    '<div class="fig-note">폴더 박스 위 숫자는 그 폴더의 <b>inode 번호(주어진 정보)</b>. 디렉토리 데이터 블록의 각 칸 = <b>(inode번호 | 이름)</b>이고 첫 두 칸은 항상 <b>.</b>(자기)·<b>..</b>(부모). 화살표(이름→inode→데이터블록)를 따라 빈칸 ①~⑩을 채우시오. (단서: 한 인덱스 블록당 주소 = 2048/4 = 512)</div>','q');
 }
 function examFigInodeTreeAns(){
-  var v={i1:'2',b2:'3',i5:'3',e3:'10',e4:'17',e6:'550',e7:'3',e8:'10',e9:'17',e10:'25'};
+  var v={i1:'2',b2:'80',i5:'3',e3:'3',e4:'9',e6:'550',e7:'3',e8:'10',e9:'17',e10:'25'};
   return _figWrap('inode/디렉토리 구조 — 정답', _inodeTreeSvg(v)+
-    '<div class="fig-note"><b>정답</b>: ①2(루트 inode는 항상 2) ②3(usr 디렉토리 블록) ③10(src) ④17(lib) ⑤3(usr의 inode) ⑥550(usr가 가리키는 데이터블록) ⑦3(".") ⑧10(src) ⑨17(lib) ⑩25(mem).<br>'+
-    '핵심: 디렉토리도 파일 → 그 데이터블록에 (inode번호,이름) 엔트리. 첫 2칸은 .(자기)·..(부모). 이름→inode번호→inode→데이터블록 순으로 추적.</div>','ans');
+    '<div class="fig-note"><b>정답</b>: ①2(루트 inode는 항상 2) ②80(루트 inode 2가 가리키는 데이터블록) ③3(usr) ④9(mnt) ⑤3(usr의 inode) ⑥550(usr가 가리키는 데이터블록) ⑦3(".") ⑧10(src) ⑨17(lib) ⑩25(mem).<br>'+
+    '풀이: ① 루트 / 의 inode는 항상 2 → inode 2가 곧 루트. ② inode 2의 데이터블록 = 80. ③④ 그 블록(=disk block #②)에 루트 디렉토리 엔트리(. .. usr mnt) → usr=3, mnt=9. ⑤ usr의 inode=3, ⑥ 그 데이터블록=550. ⑦~⑩ disk block #550 = usr 디렉토리(.=3, ..=2, src=10, lib=17, mem=25).</div>','ans');
 }
 
 /* ========================= inode 주소지정(direct/indirect) — 개념도(문제용 보조) ========================= */
@@ -269,13 +270,30 @@ function _node(x,y,w,h,txt,kind){
          '<text x="'+(x+w/2)+'" y="'+(y+h/2+4)+'" class="figboxtxt">'+txt+'</text>';
 }
 function _edge(x1,y1,x2,y2){ return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" class="figarr" marker-end="url(#fgar)"/>'; }
-/* 표형 블록(세로 칸 나열) */
+/* 디렉토리/inode 노드: 박스 안엔 이름만, 박스 '위'에 inode 번호(주어진 정보) 작게 */
+function _dnode(x,y,w,h,name,num){
+  var s='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="7" fill="#fff7e6" stroke="#d97706" stroke-width="1.5"/>'+
+        '<text x="'+(x+w/2)+'" y="'+(y+h/2+5)+'" class="figboxtxt">'+name+'</text>';
+  // 번호 뱃지(박스 위 중앙)
+  s+='<text x="'+(x+w/2)+'" y="'+(y-7)+'" class="fignum">inode '+num+'</text>';
+  return s;
+}
+/* 표형 블록(세로 칸). rows = [[col1,col2], ...] — col1=inode번호칸, col2=이름칸. 둘 사이 세로 구분선. */
 function _blk(x,y,title,rows,dir){
-  var w=170, rh=24, hy=y, s='';
-  s+='<text x="'+(x+w/2)+'" y="'+(y-6)+'" class="figsub" style="font-weight:700">'+title+'</text>';
+  var w=180, c1=46, rh=26, hy=y, s='';
+  s+='<text x="'+(x+w/2)+'" y="'+(y-8)+'" class="figsub" style="font-weight:700">'+title+'</text>';
   for(var i=0;i<rows.length;i++){
-    s+='<rect x="'+x+'" y="'+(hy+i*rh)+'" width="'+w+'" height="'+rh+'" fill="'+(dir? '#f4f8ff':'#fff')+'" stroke="#9db8e0" stroke-width="1"/>'+
-       '<text x="'+(x+8)+'" y="'+(hy+i*rh+rh/2+4)+'" class="figcell">'+rows[i]+'</text>';
+    var r=rows[i], ry=hy+i*rh;
+    s+='<rect x="'+x+'" y="'+ry+'" width="'+w+'" height="'+rh+'" fill="'+(dir?'#f4f8ff':'#fff')+'" stroke="#9db8e0" stroke-width="1"/>';
+    if(dir){
+      // 디렉토리 블록: 항상 [번호 | 이름] 2칸 + 가운데 구분선 (이름 비어도 칸 유지)
+      s+='<line x1="'+(x+c1)+'" y1="'+ry+'" x2="'+(x+c1)+'" y2="'+(ry+rh)+'" stroke="#cdd9ec" stroke-width="1"/>';
+      s+='<text x="'+(x+c1/2)+'" y="'+(ry+rh/2+4)+'" class="figcell" style="text-anchor:middle">'+(r[0]||'')+'</text>';
+      s+='<text x="'+(x+c1+8)+'" y="'+(ry+rh/2+4)+'" class="figcell">'+(r[1]||'')+'</text>';
+    } else {
+      // inode 블록: 단일 칸 텍스트
+      s+='<text x="'+(x+8)+'" y="'+(ry+rh/2+4)+'" class="figcell">'+(r[0]||r[1]||'')+'</text>';
+    }
   }
   return s;
 }

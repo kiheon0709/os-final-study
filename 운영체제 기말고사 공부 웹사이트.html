@@ -272,6 +272,23 @@ tbody tr:hover{background:var(--surface-2)}
 .q-tags span.pts{background:var(--blue-soft);color:var(--blue-strong);border-color:var(--line-2);font-weight:700}
 .q-qtext{font-size:15.2px;color:var(--ink);font-weight:500;white-space:pre-wrap}
 .q-qtext .src{display:block;font-size:12.5px;color:var(--faint);font-weight:600;margin-bottom:7px}
+/* ----- 기출 문제 그림(figure) ----- */
+.q-fig{margin:14px 0 4px;border:1px solid var(--line-2);border-radius:12px;background:linear-gradient(180deg,#fbfdff,#f4f8ff);padding:12px 14px 13px;overflow:hidden}
+.q-fig-cap{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--blue-strong);margin-bottom:9px;opacity:.85}
+.figsvg{width:100%;height:auto;max-width:100%;display:block;font-family:inherit}
+.figbox{fill:#fff;stroke:#2563eb;stroke-width:1.4}
+.figboxtxt{fill:#1e3a8a;font-size:12px;font-weight:600;text-anchor:middle;dominant-baseline:middle}
+.figsub{fill:#64748b;font-size:10.5px;text-anchor:middle}
+.figlbl{fill:#2563eb;font-size:9.5px;text-anchor:middle;font-weight:600}
+.figarr{stroke:#2563eb;stroke-width:1.4;fill:none}
+.fig-note{margin-top:9px;font-size:12.5px;line-height:1.6;color:var(--muted);background:#eef4ff;border-radius:8px;padding:8px 11px}
+.fig-note b{color:var(--blue-strong)}
+.fig-table{border-collapse:collapse;width:100%;font-size:12.5px;background:#fff;border-radius:8px;overflow:hidden}
+.fig-table th,.fig-table td{border:1px solid #cdd9ec;padding:6px 8px;text-align:center}
+.fig-table th{background:#e7eefc;color:#1e3a8a;font-weight:700}
+.fig-table td{color:#334155}
+.fig-table td.fig-ans{background:#eafaf0;color:#0f7a3d;font-weight:700}
+@media(max-width:560px){.fig-table{font-size:11px}.fig-table th,.fig-table td{padding:4px 5px}.q-fig{padding:10px}}
 .q-body{padding:0 20px 4px}
 .opts{margin:6px 0 14px}
 .opt{display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border:1px solid var(--line);border-radius:9px;margin:6px 0;cursor:pointer;font-size:14.5px;transition:.12s;background:var(--surface)}
@@ -394,6 +411,8 @@ tbody tr:hover{background:var(--surface-2)}
 
 <script src="slides_data.js"></script>
 <script src="qna_data.js"></script>
+<script src="exams_fig.js"></script>
+<script src="exams_data.js"></script>
 <script>
 /* ============================================================
    DATA — 운영체제 기말 (파일 / 입출력 / 메모리 / 가상메모리 / 스케줄링)
@@ -1022,101 +1041,8 @@ const QUIZZES = [
 /* ---- 기출시험 (족보) & 연습시험 ----
    {id, year, title, meta, tag:"exam|mock", items:[{n, pts, tags:[...], q, a, expl?, crit?}]}
 */
-const EXAMS = [
-{id:"e2019", year:"2019", title:"2019학년도 1학기 기말 (최훈)", meta:"2019.6.18 · 70분 · single CPU 대상", tag:"exam", note:"※ 답안은 채점기준의 핵심 요지이며, 실제 답안은 이보다 더 상세한 설명이 필요함.", items:[
-  {n:"1", pts:"30점 (각 3점)", tags:["종합","OX"], q:"아래 각 문항이 맞으면 O, 틀리면 X와 함께 어느 부분이 왜 틀렸는지 쓰시오.\n① Round robin 스케줄링에서 time slice 길이가 짧을수록 response time이 짧아진다.\n(2) Banker's algorithm 관련 / (4) Page fault rate 관련 / (7) 다음 번 scheduling 관련 / (8) critical section 관련 / (10) segment table 관련",
-   a:"맞는 것: ①(O) 등. 틀린 것 5개:\n(2) X — Banker's algorithm이 아니라 Bakery algorithm이다.\n(4) X — Page fault rate를 개선한 것이 아니라 시스템 성능(속도)을 개선한 것이다 (또는 디스크 access(write) 시간을 줄인 것).\n(7) X — 다음 번 scheduling 되었을 때 time slice에 더해지지 않는다 (우선순위가 높아진다).\n(8) X — critical section을 실행하는 동안 context switch가 발생할 수 있다.\n(10) X — segment table은 프로세스마다 하나씩 있어야 한다 (OS에 하나라는 것이 틀림).",
-   crit:"하나당 3점, 총 30점. 틀린 것을 정확히 고르고 이유까지 써야 함."},
-  {n:"1-③", pts:"15점", tags:["입출력","서술","영문"], q:"Round robin 스케줄링 방식에서 time slice 길이가 X와 영백히 틀리면 길면 throughput이 커지고, 길이가 짧으면 이유를 간단히 쓰시오. (When a write operation is made by polling method … 영문 서술형 — 폴링 write 동작을 영어로 서술)",
-   a:"[폴링 write 절차 영문] The device driver repeatedly reads the busy bit of the controller until the bit becomes clear. Then the device driver sets the write bit in the control register, writes a byte into the data-out register, and sets the command-ready bit. When the controller notices that the command-ready bit is set, it sets the busy bit. The controller reads the write command and reads the data-out register and does output.",
-   expl:"폴링 방식 write: busy bit read(반복) → write bit set → data-out 레지스터에 write → command-ready bit set → 컨트롤러가 인지해 busy bit set 후 출력."},
-  {n:"2", pts:"15점", tags:["파일관리","계산","inode"], q:"어느 파일시스템의 FCB는 UNIX file system의 inode와 유사한 구조를 가지고 있어서, 각종 file attribute 정보들과 파일의 데이터 블록 주소들이 저장되는 어느 파일. 단 direct block 번호 개수가 10개, 1점은 512바이트의 한 블록 길이가 512바이트라고 하고, 블록 번호를 저장하는데 128바이트가 필요하다고 가정하자. 어느 파일의 내용이 순서대로\n10, 11, 214, 215, 38, 39, 40, 171, 180, 181, 182, 183\n번 블록에 저장되어 있을 경우, 이 파일의 데이터 블록 주소들이 저장되는 모습을 그림으로 보이시오. (FCB의 direct block field 10개와 single indirect 1개로 표현)",
-   a:"direct block field 10칸에 앞 10개 블록 번호(10,11,214,215,38,39,40,171,180,181)를 차례로 저장하고, 11번째·12번째 블록(182,183)은 single indirect block을 하나 할당받아 그 안에 저장한다. inode의 single indirect 필드는 그 인덱스 블록을 가리킨다.",
-   expl:"direct 10개를 먼저 채우고 초과분은 single indirect 블록으로."},
-  {n:"3", pts:"10점", tags:["파일관리","서술"], q:"워드프로세서 프로그램을 통해 파일시스템에 저장된 어느 파일 A.hwp를 열고(open) 기존 내용보다 5KB바이트 정도 내용을 추가·저장하였다. A.hwp 작업에 이용된 파일시스템 구성요소(boot block, super block, directory, FCB list, data blocks)를 순서대로 나열하고, 해당 구성요소를 왜 접근하는지 설명하시오.",
-   a:"directory → FCB list → data blocks → super block → data blocks → FCB list.\n① directory로 A.hwp의 inode 번호를 찾고 ② FCB(inode)로 데이터 블록 위치 파악 ③ data block을 읽어 기존 내용 로드 ④ 5KB 추가 저장 위해 super block에서 빈 data block 할당 ⑤ 새 data block에 내용 write ⑥ FCB(inode) 갱신(크기·블록주소).",
-   expl:"super block을 접근하는 이유 = 추가된 5KB를 저장할 빈 data block을 할당받기 위함."},
-  {n:"4", pts:"20점", tags:["가상메모리","계산","TLB"], q:"32 bit address 컴퓨터가 Translation Lookaside Buffer를 이용하는데 page size가 16K byte라고 하자. 이 시스템에서 page table은 하나의 page에 들어가게 만들어진다. Demand paging 방식을 사용할 때:\n(1) logical address 구성을 설계하고 각 부분의 이름, 비트 수, 계산 근거를 보이시오.\n(2) TLB access 시간이 0.05 microsec, 메모리 access 시간이 1 microsec, hit ratio가 0.9일 때 effective access time을 구하시오.",
-   a:"(1) page size 16KB = 2¹⁴ → offset = 14비트. PTE 4byte 가정, 한 페이지에 16KB/4B = 2¹² = 4096개 엔트리 → page table 인덱스 = 12비트. 남은 = 32−14−12 = 6비트 = outer/상위 인덱스. 구성: [p1 6 | p2 12 | offset 14].\n(2) EAT = (0.05+1)×0.9 + (0.05+3)×0.1 = 0.945 + 0.305 = 1.25 microsec.",
-   expl:"2단계 페이지 테이블이므로 TLB miss 시 페이지테이블 접근 2회 + 데이터 1회 = 3 microsec(메모리). hit 시 ε+1."},
-  {n:"5", pts:"10점", tags:["메모리","서술","단편화"], q:"가상 메모리 기술을 안 쓰는 컴퓨터의 메모리 관리에 대해 이번 과목에서 배운 내용 중 아래 물음에 답하시오.\n(1) 메인메모리에 internal fragmentation이 발생할 수 있는 메모리 관리 방법 3가지를 쓰시오.\n(2) internal fragmentation에 비해 가지는 정점과 단점들을 각각 쓰시오.\n(3)(4) 위 (1) 번의 세 가지 방법 중 하나는 다른 두 개에 비해 external fragmentation 개수를 줄이는 정점이 있다. 그 방법 이름과 external fragmentation 크기를 줄이는 이유를 쓰시오.",
-   a:"(1) Internal 발생: 고정분할(Fixed partitioning), 페이징(Paging), 버디 시스템(Buddy system).\n(2) Internal은 할당된 공간 내부 낭비 / External은 외부의 흩어진 빈 공간. 페이징은 External이 없어지는 대신 Internal이 생기나 그 크기가 페이지 크기 미만으로 작아 무시 가능.\n(3)(4) 버디 시스템 — 2의 제곱 단위로 할당하고 회수 시 버디끼리 병합해 큰 블록을 유지하므로 external fragment가 작은 조각으로 흩어지는 것을 방지한다.",
-   expl:"고정분할·페이징·버디가 internal, 가변분할·세그멘테이션이 external."},
-  {n:"6", pts:"10점", tags:["가상메모리","계산","페이지교체"], q:"어느 프로세스가 page frame 4개를 쓰고 있다. 각 frame에 대한 정보가 아래와 같다. 각 page 별로, replace될 page의 번호를 쓰시오.\n\nPage 0: Load 110, 최근액세스 260, Ref 1, Modified 0\nPage 1: Load 210, 최근액세스 240, Ref 0, Modified 1\nPage 2: Load 126, 최근액세스 230, Ref 0, Modified 0\nPage 3: Load 165, 최근액세스 264, Ref 1, Modified 1\n\n(1) LRU 방식 (2) Second chance(0번 frame부터) (3) Enhanced second chance(0번 frame부터)",
-   a:"(1) LRU: 최근 액세스 시각이 가장 오래된(작은) Page → Page 2(230) ... 실제로는 230이 가장 작으므로 Page 2가 아님 주의: 최근액세스 230(P2) < 240(P1) < 260(P0) < 264(P3) → 가장 오래된 P2를 replace.\n(2) Second chance: 0번부터 ref bit 확인. P0 ref=1→0으로, P1 ref=0 → replace = Page 1.\n(3) Enhanced second chance: (ref,mod) (0,0) 먼저. P2(0,0) → replace = Page 2.",
-   expl:"LRU=최근액세스 최소(P2), Second chance=ref 0 첫 번째(P1), Enhanced=(0,0) 우선(P2)."},
-  {n:"7", pts:"10점", tags:["입출력","서술","system call"], q:"System call 처리 방법을 설명하시오. 예를 들어 3번 시스템 콜이 3번 시스템 콜의 함수를 어떻게 진입·방법, 커널이 3번 시스템 콜을 호출하는 과정을, 이용되는 자료구조와 과정을, 이용되는 자료구조도 함께 설명하시오.",
-   a:"유저 프로그램의 system call은 컴파일 시 어셈블리로 번역되며 그 안에 int 0x80(128번 인터럽트) 인스트럭션이 포함된다. 실행 시 IDT(interrupt descriptor table)의 128번 칸 → system call handler로 진입 → handler가 system call table에서 해당 고유 번호(예: 3번)의 함수 주소를 찾아 실제 시스템 콜 함수를 실행한다. (IDT + system call table 두 단계 — IDT 칸이 부족해 시스템 콜은 별도 테이블로 분기)",
-   expl:"인터럽트와 달리 IDT + system call table 두 단계를 거친다."},
-  {n:"8", pts:"10점", tags:["스케줄링","계산","Gantt"], q:"어느 시스템에 다음과 같이 프로세스들이 도착했을 때, 각각에 대해 (1) Gantt chart를 보이고 (2) waiting time과 turnaround time을 완성하시오. 단 Priority는 숫자가 작을수록 우선순위가 높다.\n\nProcess: P1 P2 P3 P4 P5\nArrival: 0 3 4 4.5 9\nService: 4 4.5 3 2 6 (도착·서비스·우선순위 표)\nPriority: 5 3 2 1 4\n\n① Round Robin(time quantum 2)  ② Priority scheduling (preemptive)",
-   a:"각 알고리즘별로 도착 시점마다 큐 상태를 추적해 Gantt chart를 그린 뒤, Turnaround = 완료−도착, Waiting = Turnaround − Service로 계산한다. Preemptive Priority는 도착 시마다 현재 실행 프로세스와 우선순위를 비교해 더 높은(숫자 작은) 것이 오면 뺏는다. Preempt당한 프로세스는 Ready Queue로 복귀한다.",
-   expl:"문제 수치가 일부 흐릿하므로 공식 적용 연습용으로 활용. RR은 time quantum 2 단위 순환, Priority(preemptive)는 도착마다 비교."},
-]},
-
-{id:"e2020", year:"2020", title:"2020학년도 1학기 기말 (최훈)", meta:"2020.6.17 · 75분 · single CPU", tag:"exam", items:[
-  {n:"1", pts:"20점", tags:["종합","OX"], q:"①~⑩ 중 의미상 명백히 틀린 것 5개를 골라 번호와 이유를 쓰시오. (binding/compaction, best fit, virtual memory, inode/superblock, scheduling 관련)",
-   a:"틀린 것 5개:\n② load-time binding은 compaction을 제공하지 않는다 (compaction은 execution-time binding 필요).\n③ best fit이 first fit보다 빠르지 않다 (first fit이 더 빠름).\n⑤ 프로세스의 user context 크기만큼만 디스크 블록을 할당한다.\n⑧ file system 전체 제어정보는 inode가 아니라 superblock에 저장.\n⑩ non-preemptive가 throughput이 좋고 preemptive가 response time이 좋다(위치 뒤바뀜).",
-   crit:"틀린 것을 정확히 고르고 이유 명시."},
-  {n:"3", pts:"15점", tags:["파일관리","계산","inode"], q:"UNIX file system의 block size가 2,048byte, 정수 표현에 4byte 필요할 때 파일 크기 최대값을 구하시오 (식 제시).",
-   a:"한 블록당 주소 개수 = 2048/4 = 512개.\ndirect: 10 × 2KB = 20KB\nsingle: 512 × 2KB = 1MB\ndouble: 512² × 2KB = 512MB\ntriple: 512³ × 2KB\n최대 = 20KB + 1MB + 512MB + (512³×2KB).",
-   expl:"한 블록당 주소 개수 = block size / 정수크기."},
-  {n:"4", pts:"20점", tags:["입출력","비교표"], q:"Programmed I/O / Interrupt-driven I/O / DMA 비교표의 각 항에 해당하면 O, 아니면 X를 채우시오. (context switch 발생, 입력 완료 후 interrupt, busy waiting, CPU가 데이터 저장 담당, device driver 필요, 최적 사례)",
-   a:"입력 후 context switch: Prog=X, Int=O, DMA=O\n완료 후 interrupt: Prog=X, Int=O, DMA=O\nbusy waiting: Prog=O, Int=X, DMA=X\nCPU가 데이터 저장: Prog=O, Int=O, DMA=X\ndevice driver 필요: 모두 O\n최적사례: Prog=빠른 입출력, Int=느린 입출력, DMA=다량 입출력.",
-   expl:"DMA만 CPU를 거치지 않음. 폴링만 busy-waiting."},
-  {n:"6", pts:"10점", tags:["가상메모리","계산","TLB"], q:"32bit address, page size 8KB, PTE 4byte, multi-level page table. (1) logical address 구성, (2) TLB 0.005μs, hit 0.8, 메모리 1μs일 때 EAT 수식.",
-   a:"(1) offset = 13비트(8KB=2¹³), p2 = 11비트(8KB/4B=2¹¹=2048개), p1 = 8비트(32−13−11). 구성 [p1 8|p2 11|offset 13].\n(2) EAT = (0.005+1)×0.8 + (0.005+3)×0.2.",
-   expl:"miss 시 2단계 테이블(2회)+데이터(1회)=메모리 3회 → +3. (+2로 쓰면 감점)"},
-]},
-
-{id:"e2020y", year:"2020연계", title:"2020 연계(2학기) 기말", meta:"2020.12.14 · 60분", tag:"exam", items:[
-  {n:"1", pts:"36점", tags:["종합","OX"], q:"①~⑫ 맞으면 O, 틀리면 X와 이유. (interrupt/ISR, deadlock 대처/조건, disk scheduling, page table, virtual memory, inode/superblock, scheduling)",
-   a:"맞는 것: ①②⑥⑦⑧⑨⑪.\n③ X — 대부분 상용 OS는 탐지·회복이 아니라 아무것도 안 함(ostrich) 방법.\n④ X — preemption이 가능하면 deadlock 안 생김(no-preemption이어야 deadlock 가능).\n⑤ X — disk scheduling 목적은 rotational delay가 아니라 seek time.\n⑩ X — file system 크기·data block 정보는 inode가 아니라 superblock.\n⑫ X — process termination은 preemptive가 아니라 non-preemptive."},
-  {n:"3", pts:"10점", tags:["파일관리","비교표"], q:"Contiguous / Indexed allocation 장단점 비교표를 완성하시오. (file size 증가, external frag 가능 여부, 안전성, 필요 data block 공간, 순차 access)",
-   a:"contiguous: 크기증가 어려움, external 가능(Yes), 안전성 좋음, 공간 소, 순차 빠름.\nindexed: 크기증가 쉬움, external 불가(No), 안전성 상대적, 공간 다(인덱스블록 추가), 순차 상대적.",
-   expl:"contiguous는 external fragmentation 발생, indexed는 발생 안 함."},
-  {n:"6", pts:"20점", tags:["메모리","계산","페이징"], q:"16bit address, page size 2,048byte, logical address 0010 0110 0001 0110, page table(0→4,1→15,2→6,3→27,4→3,…). physical address를 이진수로 구하는 과정을 그림으로.",
-   a:"page size 2048=2¹¹ → offset 11비트, page number 5비트. logical = 00100|110 0001 0110 → page#=4. page table[4]=3=00011. physical = 00011|110 0001 0110.",
-   expl:"offset은 그대로, page number만 frame number로 교체."},
-]},
-
-{id:"e2021", year:"2021", title:"2021학년도 기말", meta:"답안 키 기반 재구성", tag:"exam", items:[
-  {n:"1", pts:"20점", tags:["종합","OX"], q:"①~⑩ OX (틀린 것 6개). throughput, ready 상태, block 상태, spooling, turnaround time, interrupt vector table 관련.",
-   a:"틀린 것:\n(1) degree of multiprogramming이 아니라 throughput.\n(2) new가 아니라 ready 상태가 되면 스케줄러 실행.\n(4) ready가 아니라 block 상태로 기다림.\n(7) spooling은 main memory가 아니라 디스크(파일)에 저장.\n(8) turn-around time에서 block 상태 대기시간도 빼야 함.\n(10) interrupt vector table이 아니라 system call table."},
-  {n:"3", pts:"15점", tags:["파일+메모리","서술"], q:"(1) Contiguous allocation과 free space counting 방식의 유사점·차이점. (2) Thrashing 처리와 memory compaction에 공통으로 필요한 기술과 이를 가능케 하는 주소결정 방법.",
-   a:"(1) 유사: 둘 다 시작 블록 번호 + 연속 블록 수로 영역 지정. 차이: contiguous는 파일 데이터 영역, counting은 빈 데이터 블록 영역 표시.\n(2) 공통 기술 = relocation. 가능케 하는 주소결정 = execution time binding.",
-   expl:"relocation은 execution time binding에서만 가능."},
-  {n:"4", pts:"25점", tags:["가상메모리","계산","TLB"], q:"2단계 page table + TLB 주소변환. (1) logical address 구성, (2) outer page table·TLB를 거친 physical address 변환을 그림으로.",
-   a:"(1) page number = p1(상위 8비트) + p2(하위 11비트), offset 13비트.\n(2) outer table → page table → frame# 획득, TLB에 (page#→frame#) 저장, physical = frame# + offset.",
-   expl:"TLB hit 시 페이지 테이블 생략."},
-]},
-
-{id:"e2023", year:"2023", title:"2023학년도 1학기 기말", meta:"2023.6.14 · 45분", tag:"exam", items:[
-  {n:"1", pts:"30점", tags:["종합","OX"], q:"①~⑮ 맞으면 O, 틀리면 X. (polling vs interrupt, open/FCB, buffering/spooling, interrupt 처리, Scan/Look/SSTF, binding/relocation, demand paging, scheduling, enhanced second chance, thrashing, round robin, best fit)",
-   a:"O: ①②⑥⑧⑬⑭. X: ③④⑤⑦⑨⑩⑪⑫⑮.\n주요 X: ③ Look이 단위시간당 더 많이 처리, SSTF는 starvation. ④ 인터럽트는 끝내기 전에 새 인터럽트 처리. ⑤ best fit이 빠르지 않다/relocation은 execution time binding. ⑩ Enhanced second chance는 page fault가 아니라 disk write 횟수를 줄임. ⑪ thrashing 해결은 terminate가 아니라 suspend. ⑫ round robin에서 quantum 짧으면 throughput 감소. ⑮ best fit이 first fit보다 느림."},
-  {n:"2", pts:"10점", tags:["파일관리","Grouping"], q:"Grouping으로 빈 데이터 블록 관리. Super block list=[107,105], Data block#107=[210,208,205,200,196,195,150,116,113,112]. 3개의 빈 데이터 블록을 할당한 후 상황을 그림으로.",
-   a:"super block list의 아랫자리부터 할당. super block의 마지막 포인터가 가리키는 블록(107)을 파일에 주기 전에 107 안의 다음 그룹 리스트(210…)를 super block으로 복사한 뒤 107을 할당. 결과적으로 210번이 새 super block list가 되고 112·105·107 등이 빠진다.",
-   expl:"grouping에서 super block의 마지막 포인터가 다음 그룹 리스트 블록을 가리킨다."},
-  {n:"4", pts:"15점", tags:["가상메모리","계산","2단계"], q:"32bit, logical address 0000010 | 000000000011 | 0000000000100 (7/12/13비트). outer table[2]=41, page table[3]=94. 빈칸 (1)~(5).",
-   a:"(1) page offset(마지막 13비트). (2) 41(outer table[2]=다음 page table 위치). (3) outer page(page directory). (4) 94(page table[3]=frame number). (5) 8191(=2¹³−1, 페이지 내 마지막 바이트 인덱스).",
-   expl:"offset 13비트 = 8KB 페이지."},
-  {n:"5", pts:"15점", tags:["가상메모리","계산","TLB"], q:"page size 4KB, 32bit, demand paging. TLB hit 0.75, TLB search 5ns, memory 1,000ns. EAT를 ns 단위 수식으로(식만).",
-   a:"EAT = (5+1000)×0.75 + (5+3000)×0.25.",
-   expl:"miss 시 2단계 테이블(2회)+데이터(1회)=메모리 3회=3000ns. (5+2000)으로 쓰면 부분점수."},
-]},
-
-{id:"e2025", year:"2025", title:"2025학년도 1학기 기말", meta:"2025.6.18 · 55분 · 일부 손글씨 판독", tag:"exam", note:"※ 답이 손글씨라 일부 항목은 정황 추정.", items:[
-  {n:"1", pts:"30점", tags:["종합","OX"], q:"①~⑩ 맞으면 O, 틀리면 X + 틀린 단어 지적. (polling/interrupt throughput, device file/driver, SSTF starvation/Look, RAID2 해밍, contiguous, page replacement, disk head 3단계, scheduler waiting time, control bits, enhanced second chance modify bit)",
-   a:"① O(polling이 빠른 I/O 유리). ② O. ③ X(SSTF는 starvation, Look이 일반적). ④ O(RAID2 해밍코드 검출·정정). ⑥ X(page replacement는 빈 프레임 없을 때만). ⑩ X(Enhanced second chance는 modify bit 추가로 disk write를 줄임, page fault 줄임 아님).",
-   expl:"③⑥⑩이 단골 오답."},
-  {n:"4", pts:"10점", tags:["파일관리","서술"], q:"워드프로세서로 A.hwp를 열고 5KB 추가·저장 후 종료. (1) 이용되는 파일시스템 구성요소를 순서대로(빈칸 3개), (2) ? 구성요소를 왜 접근하는지.",
-   a:"(1) directory → FCB list → data blocks → super block → data blocks → FCB list.\n(2) super block 접근 이유: 추가된 5KB를 저장할 빈 data block을 할당받기 위해 (빈 블록 관리 정보가 super block에 있음).",
-   expl:"2019·2025 반복 출제."},
-  {n:"6", pts:"34점", tags:["가상메모리","계산","TLB"], q:"24bit address, TLB, demand paging, page size 2,048byte, PTE 8byte. (1) virtual address 구성, (3) TLB 0.001μs, memory 1μs, hit 0.85일 때 EAT, (4) TLB 엔트리 정보 3가지.",
-   a:"(1) offset=11비트(2048=2¹¹), p2=8비트(2048/8=256=2⁸), p1=24−11−8=5비트. 구성 [p1 5|p2 8|offset 11].\n(3) EAT = (0.001+1)×0.85 + (0.001+3)×0.15.\n(4) page number(tag), frame number, valid bit.",
-   expl:"PTE가 8byte라 한 페이지에 256개 → p2=8비트."},
-]},
-
-/* ---- 연습시험 (족보 패턴 기반 모의) ---- */
+/* 기출(EXAMS_DATA)+연습(MOCKS) 결합. 기출 본체는 exams_data.js / 그림은 exams_fig.js */
+const MOCKS = [
 {id:"mock1", year:"연습", title:"연습시험 1 — 기말 전범위 모의 (족보 패턴)", meta:"족보 출제 패턴 기반 · 자가 채점용", tag:"mock", items:[
   {n:"1", pts:"30점", tags:["종합","OX"], q:"다음이 맞으면 O, 틀리면 X와 이유를 쓰시오.\n(1) FCB는 메인 메모리에 영구 저장된다.\n(2) 디스크 스케줄링의 목적은 seek time을 줄이는 것이다.\n(3) Best fit이 first fit보다 빈 공간 탐색이 빠르다.\n(4) page table은 운영체제에 하나만 있으면 된다.\n(5) Enhanced second chance는 page fault 횟수를 줄인다.\n(6) preempt당한 프로세스는 block queue로 들어간다.",
    a:"(1) X — FCB는 보조기억장치에 영구 저장(open 시에만 메모리로 복사).\n(2) O.\n(3) X — best fit은 전체를 조사해 first fit보다 느림.\n(4) X — page table은 프로세스마다 하나씩.\n(5) X — disk write 횟수를 줄임(page fault 아님).\n(6) X — ready queue로 들어감(입출력 안 했으므로)."},
@@ -1137,6 +1063,8 @@ const EXAMS = [
    expl:"폴링: running 유지. 인터럽트: blocked + context switch."},
 ]},
 ];
+/* 기출(외부 exams_data.js) + 연습(MOCKS) 결합. 기출 본체는 별도 파일에서 관리 */
+const EXAMS = (window.EXAMS_DATA||[]).concat(MOCKS);
 
 /* ============================================================
    RENDER ENGINE
@@ -1158,6 +1086,7 @@ const ICON = {
   prof:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3 2 8l10 5 10-5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M6 10.5V15c0 1.4 2.7 2.6 6 2.6s6-1.2 6-2.6v-4.5M21 8.5v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   flow:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 6h10M4 12h16M4 18h7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M18 3l3 3-3 3M14 15l3 3-3 3" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   qna:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-4 4v-4H4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.4 8.6a2.2 2.2 0 1 1 3.2 2c-.7.4-1 .8-1 1.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="11.6" cy="14" r=".9" fill="currentColor"/></svg>',
+  img:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="8.5" cy="9" r="1.6" stroke="currentColor" stroke-width="1.6"/><path d="M5 18l5-5 3 3 3-3 3 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 };
 const BOXICON={key:ICON.key,tip:ICON.bulb,warn:ICON.warn,trap:ICON.trap};
 const BOXLABEL={key:"핵심",tip:"꿀팁",warn:"주의",trap:"함정"};
@@ -1194,7 +1123,7 @@ const NAV=[
   {id:"qna",label:"Q&A",icon:ICON.qna},
 ];
 
-let state={view:"home", chap:"file", quizCh:"all", examId:"e2019", qnaCat:"all"};
+let state={view:"home", chap:"file", quizCh:"all", examId:"e2025", qnaCat:"all"};
 
 /* ---- 스크롤·뷰 상태 기억 (새로고침 복원) ---- */
 const SKEY='os_final_study_state';
@@ -1418,7 +1347,8 @@ function viewExam(isMock){
 
   ex.items.forEach((it,idx)=>{
     const gid='ex_'+ex.id+'_'+idx;
-    h+='<div class="q"><div class="q-head"><span class="q-badge '+(isMock?'':'ex')+'">'+it.n+'번</span><div style="flex:1"><div class="q-qtext">'+inl(it.q)+'</div><div class="q-tags"><span class="pts">'+it.pts+'</span>';
+    let figHtml=''; if(it.fig){ try{ figHtml = (typeof it.fig==='function')? it.fig() : it.fig; }catch(e){ figHtml=''; } }
+    h+='<div class="q"><div class="q-head"><span class="q-badge '+(isMock?'':'ex')+'">'+it.n+'번</span><div style="flex:1"><div class="q-qtext">'+inl(it.q)+'</div>'+figHtml+'<div class="q-tags"><span class="pts">'+it.pts+'</span>';
     (it.tags||[]).forEach(t=>h+='<span>'+t+'</span>');
     h+='</div></div></div><div class="q-body"><button class="reveal-btn" onclick="toggleAns(\''+gid+'\')">'+ICON.key+' 정답'+(it.crit?' · 채점기준':'')+' 보기</button>';
     h+='<div class="answer" id="'+gid+'"><div class="a-label">'+ICON.check+' 정답</div><div class="a-text">'+inl(it.a)+'</div>';
@@ -1520,6 +1450,12 @@ function setupSlideSpy(){
     if(sv.examId) state.examId=sv.examId;
     if(sv.qnaCat) state.qnaCat=sv.qnaCat;
   }
+  // URL 쿼리 딥링크 (?view=exam&exam=e2025) — 저장 상태보다 우선
+  try{
+    const qp=new URLSearchParams(location.search);
+    if(qp.get('view')) state.view=qp.get('view');
+    if(qp.get('exam')) state.examId=qp.get('exam');
+  }catch(e){}
   render();
   const y=sv&&sv.scroll?sv.scroll:0;
   if(y>0){

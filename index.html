@@ -274,6 +274,8 @@ tbody tr:hover{background:var(--surface-2)}
 .q-qtext .src{display:block;font-size:12.5px;color:var(--faint);font-weight:600;margin-bottom:7px}
 /* ----- 기출 문제 그림(figure) ----- */
 .q-fig{margin:14px 0 4px;border:1px solid var(--line-2);border-radius:12px;background:linear-gradient(180deg,#fbfdff,#f4f8ff);padding:12px 14px 13px;overflow:hidden}
+.q-fig-ans{margin-top:12px;background:linear-gradient(180deg,#f4fbf6,#ecf8f1);border-color:#bfe6cd}
+.q-fig-ans .q-fig-cap{color:#0f7a3d}
 .q-fig-cap{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--blue-strong);margin-bottom:9px;opacity:.85}
 .figsvg{width:100%;height:auto;max-width:100%;display:block;font-family:inherit}
 .figbox{fill:#fff;stroke:#2563eb;stroke-width:1.4}
@@ -1345,13 +1347,16 @@ function viewExam(isMock){
   const ex=pool.find(e=>e.id===state.examId);
   h+='<div class="card tight" style="border-left:4px solid '+(isMock?'var(--blue)':'var(--violet)')+';margin:6px 0 18px"><div style="font-weight:700;font-size:15.5px">'+ex.title+'</div><div style="font-size:13px;color:var(--muted);margin-top:2px">'+ex.meta+'</div>'+(ex.note?'<div class="note-sm" style="color:var(--amber);margin-top:6px">'+inl(ex.note)+'</div>':'')+'</div>';
 
+  const callFig=(f)=>{ if(!f) return ''; try{ return (typeof f==='function')? f() : f; }catch(e){ return ''; } };
   ex.items.forEach((it,idx)=>{
     const gid='ex_'+ex.id+'_'+idx;
-    let figHtml=''; if(it.fig){ try{ figHtml = (typeof it.fig==='function')? it.fig() : it.fig; }catch(e){ figHtml=''; } }
-    h+='<div class="q"><div class="q-head"><span class="q-badge '+(isMock?'':'ex')+'">'+it.n+'번</span><div style="flex:1"><div class="q-qtext">'+inl(it.q)+'</div>'+figHtml+'<div class="q-tags"><span class="pts">'+it.pts+'</span>';
+    const qFig=callFig(it.qfig||it.fig);   // 문제용 그림(빈칸/주어진 표) — 문제에 표시
+    const aFig=callFig(it.afig);           // 정답용 그림(채워진 답) — 해설에서만 표시
+    h+='<div class="q"><div class="q-head"><span class="q-badge '+(isMock?'':'ex')+'">'+it.n+'번</span><div style="flex:1"><div class="q-qtext">'+inl(it.q)+'</div>'+qFig+'<div class="q-tags"><span class="pts">'+it.pts+'</span>';
     (it.tags||[]).forEach(t=>h+='<span>'+t+'</span>');
     h+='</div></div></div><div class="q-body"><button class="reveal-btn" onclick="toggleAns(\''+gid+'\')">'+ICON.key+' 정답'+(it.crit?' · 채점기준':'')+' 보기</button>';
     h+='<div class="answer" id="'+gid+'"><div class="a-label">'+ICON.check+' 정답</div><div class="a-text">'+inl(it.a)+'</div>';
+    if(aFig) h+=aFig;
     if(it.expl) h+='<div class="expl"><div class="a-label">'+ICON.bulb+' 해설</div><div class="a-text">'+inl(it.expl)+'</div></div>';
     if(it.crit) h+='<div class="crit"><div class="a-label">'+ICON.warn+' 채점기준</div>'+inl(it.crit)+'</div>';
     h+='</div></div></div>';

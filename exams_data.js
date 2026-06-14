@@ -25,28 +25,28 @@ window.EXAMS_DATA = [
 
   {n:"3", pts:"6점", tags:["프로세스","상태도","서술"],
    q:"강의 중에 다룬 7개의 상태로 이루어진 상태도(기본 5개 상태에 2개의 상태가 추가된 것)를 배운 바 있다. 이 상태도에서 메모리 할당 또는 회수가 반드시 일어나는 상태 변화 6가지를 쓰시오. (\"~ 상태에서 ~ 상태로 갈 때\" 형식으로 쓰시오.)",
-   fig: examFig7State,
+   afig: examFig7StateAns,
    a:"메모리 할당/회수가 일어나는 상태 변화 (suspend=swap-out=메모리 회수, activate=swap-in=메모리 할당, 생성/종료 포함):\n1. New → Ready (생성, 메모리 할당)\n2. Ready → Ready-suspend (swap-out, 메모리 회수)\n3. Blocked → Blocked-suspend (swap-out, 메모리 회수)\n4. Ready-suspend → Ready (swap-in, 메모리 할당)\n5. Blocked-suspend → Ready-suspend (메모리상 변화 없음 — 주의: 디스크상 상태 변화)\n6. Running/Ready/Blocked → Terminate (종료, 메모리 회수)\n※ 손글씨: new / ready / running / block / terminate / suspended 키워드 확인됨.",
    expl:"7상태 = 기본5(New, Ready, Running, Blocked, Terminate) + Suspend 2개(Ready-suspend, Blocked-suspend). 메모리는 suspend(회수)·activate(할당)·생성·종료 시 변동.",
    crit:"'~상태에서 ~상태로' 형식 + 메모리 할당/회수가 실제 일어나는 전이만 골라야 함."},
 
   {n:"4", pts:"10점", tags:["파일관리","구조","서술"],
    q:"워드프로세서에서 프로그램을 통해 파일시스템에 저장된 어느 파일 A.hwp를 열고 기존 내용보다 5KB바이트 정도 내용을 추가·저장한 후 종료하였다.\n(1) A.hwp 작업에 이용된 파일시스템 구성 요소(boot block, super block, directory, FCB list, data blocks)를 골라서 이용되는 순서대로 나열한 아래 빈 칸 3개를 채우시오.\n\n   ( directory ) → ( ? ) → ( data blocks ) → ( ? ) → ( ? ) → ( FCB list )\n\n(2) 위 문제에서 ? 칸에 해당하는 구성 요소를 왜(무엇하려고) 접근하는지 간단히 설명하시오.",
-   fig: examFigFileAccess,
+   qfig: examFigFileAccessQ, afig: examFigFileAccessAns,
    a:"(1) directory → ( FCB list ) → data blocks → ( super block ) → ( data blocks ) → FCB list\n\n(2)\n- 첫 FCB list: directory에서 찾은 inode 번호로 A.hwp의 FCB(inode)를 읽어 데이터 블록 위치·파일 크기를 파악하기 위해.\n- super block: 추가된 5KB를 저장할 빈 data block을 새로 할당받기 위해(빈 블록 관리 정보가 super block에 있음).\n- 두 번째 data blocks: 새로 할당받은 빈 블록에 추가 내용(5KB)을 실제로 write 하기 위해.\n- 마지막 FCB list: 늘어난 파일 크기와 새 data block 주소를 FCB(inode)에 갱신·저장하기 위해.",
    expl:"directory(이름→inode번호) → FCB(inode 위치/크기) → data block(기존 내용) → super block(빈 블록 할당) → data block(추가내용 쓰기) → FCB(메타 갱신). 2019·2025 반복 출제.",
    crit:"순서와 각 단계 접근 이유(특히 super block=빈 블록 할당)가 핵심."},
 
   {n:"5", pts:"10점", tags:["파일관리","inode","그림"],
    q:"다음 그림의 빈 10개에 들어갈 내용을 번호 순서대로 답지에 쓰시오. (UNIX inode의 direct/indirect 구조와 data block 연결을 따라가 빈칸의 inode 번호·블록 번호·디스크 블록 값을 채우는 문제)",
-   fig: examFigInodeTree,
+   qfig: examFigInodeTreeQ, afig: examFigInodeTreeAns,
    a:"손글씨 메모: 8/2048, 2번(?)=X 표시 확인.\n[직접 판독 한계로 일부는 그림 흐름 기준 추론]\n- inode 트리를 따라 direct/single indirect로 내려가며 각 노드의 inode/블록 번호를 채움.\n- 한 인덱스 블록당 주소 개수 = 블록크기 / 주소크기 = 2048 / 4 = 512개 라는 점이 핵심 단서(손글씨 8/2048).\n- disk block #N의 슬롯을 따라가 최종 데이터 블록(예: 550번)에 도달.\n※ 정확한 10개 값은 원본 그림 화질 한계로 완전 복원 불가 — 그림의 화살표 연결을 직접 따라가며 채우는 연습 문제로 활용.",
    expl:"inode → direct block은 inode에 직접, 초과분은 single/double indirect 인덱스 블록(슬롯 512개)을 거쳐 data block에 도달. 트리 화살표를 따라가는 것이 풀이의 핵심.",
    crit:"트리 구조에서 각 화살표가 가리키는 블록 번호를 정확히 추적해야 함."},
 
   {n:"6", pts:"34점", tags:["가상메모리","계산","TLB"],
    q:"주소의 길이가 24 bit인 어느 컴퓨터 시스템이 TLB(Translation Lookaside Buffer)를 가지고 있다. Demand paging 방식을 사용하는데 page size가 2,048 byte이고 페이지 테이블 엔트리 하나는 8 byte이다.\n\n(1) Virtual address 0000010 0101 0000 0000 0001 에 대해 주소의 구성(각 주소 구성요소의 이름·구성요소 별 bit 길이)을 보이시오. 또 그런 길이가 얼마인지도 설명·표시하시오.\n\n(2) 위 주소에 해당하는 user context의 프레임의 번호가 (binary) 111이고, 그 주소에 저장된 값이 550이다. 위 주소의 binary number를 표현한 것을 그림으로 그리시오. (outer page table·page table·TLB·물리주소 변환 과정과 비트 길이를 표시)\n\n(3) TLB lookup 시간은 0.001 microsec이고 메모리 access 시간은 1 microsec이며, TLB hit ratio가 0.85일 때 메모리 1번지의 effective access time을 수식으로 보이시오.\n\n(4) TLB 내용 중 위 주소 액세스를 한 후 이거나 알아지는 엔트리의 내용(TLB entry 정보)을 그림으로 보이시오. 이때 TLB 엔트리 하나를 구성하는 정보 세 가지 이름을 쓰고, user context가 일어난 후 알 수 있는 두 가지 정보의 값을 함께 표현하시오.\n\n(5) 위 (2)번 그림에서 logical address로부터 TLB로 연결되는 부분을 화살표로 그림으로 보이고 입력 bit 수도 표시하시오.",
-   fig: examFigTLB25,
+   afig: examFigTLB25Ans,
    a:"(1) page size 2048 = 2¹¹ → page offset = 11비트.\n   PTE 8byte → 한 페이지(2048B)에 들어가는 엔트리 수 = 2048/8 = 256 = 2⁸ → inner page table index(p2) = 8비트.\n   남은 = 24 − 11 − 8 = 5비트 = outer page table index(p1).\n   구성: [ p1 5비트 | p2 8비트 | page offset 11비트 ]\n\n(2) frame number = 111(binary), offset 11비트는 logical address에서 그대로 복사.\n   physical address = frame(111…) ‖ offset. 저장된 값 = 550.\n\n(3) effective access time\n   = (0.001 + 1) × 0.85  +  (0.001 + 1) × 0.5 × 0.15\n   (TLB miss(0.15) 시 2단계 페이지 테이블+데이터 접근이 추가됨 — 답안지 수식 형태)\n   ※ 손글씨 답안지 표기: (0.001+1)×0.85 + (0.001+1)×0.5×0.15\n\n(4) TLB 엔트리 3가지: page number(tag) / frame number / valid(control) bit.\n   이번 액세스 후 알게 되는 값: page number(상위 p1+p2) = 입력값, frame number = 111.\n\n(5) logical address의 page number 부분(p1+p2 = 5+8 = 13비트)이 TLB 입력으로 들어감 → 입력 bit = 13비트.",
    expl:"PTE가 8byte라 한 페이지에 2048/8=256개 → p2=8비트가 이 문제의 핵심 포인트. offset=11(2048=2¹¹), p1=24−11−8=5. TLB 입력은 page number 13비트.",
    crit:"(1) 비트 분할(5/8/11)과 근거, (3) EAT 수식, (4) TLB 3요소(tag·frame·valid)가 배점 큼."},
@@ -63,7 +63,7 @@ window.EXAMS_DATA = [
 
   {n:"2", pts:"10점", tags:["파일관리","Grouping","그림"],
    q:"Grouping으로 파일시스템의 빈 데이터 블록들을 관리하는 운영체제가 있다. 아래와 같은 상황에서 빈 데이터 블록 3개를 할당하고 난 후의 모습을 그림으로 그리시오.",
-   fig: examFigGrouping23,
+   qfig: examFigGrouping23Q, afig: examFigGrouping23Ans,
    a:"핵심: super block 리스트의 끝쪽부터 할당. super block의 마지막 포인터가 가리키는 그룹 인덱스 블록(#107)을 파일에 내주기 전에, 107 안에 들어있던 다음 그룹 리스트(맨 끝 210 등)를 super block으로 끌어올려야 함.\n\n채점 핵심(답안):\n- 새 super block 리스트에서 제일 끝의 112가 없어지고,\n- 데이터 블록 107이 (할당되어) 없어지며,\n- 210번 블록이 super block 다음(새 그룹 인덱스)으로 오는 것.",
    expl:"grouping = 첫 블록(그룹 인덱스)에 빈 블록 주소 n개 + 마지막 칸은 다음 그룹 인덱스 블록 포인터. 인덱스 블록을 다 쓰면 그 마지막 포인터가 가리키던 블록이 새 인덱스 블록이 됨.",
    crit:"112 제거 + 107 제거 + 210이 super block 다음으로 승격되는 점이 핵심."},
@@ -76,7 +76,7 @@ window.EXAMS_DATA = [
 
   {n:"4", pts:"15점 (각 3점)", tags:["가상메모리","계산","2단계페이징"],
    q:"32 bit address 체계에서 아래 logical address를 physical address로 변환하는 과정에서 (1)~(5) 빈칸에 들어갈 용어 또는 숫자를 쓰시오.\nlogical(virtual) address = 0000010 | 000000000011 | 0000000000010100  (7비트 | 12비트 | 13비트)\nouter page table[2] = 41,  page table[3] = 94 (예시 값)",
-   fig: examFig2LevelPaging23,
+   afig: examFig2LevelPaging23Ans,
    a:"(1) page offset (하위 13비트)\n(2) 41 — outer page table[2]가 가리키는 (2단계) page table의 위치/프레임\n(3) outer page (= page directory, root page table)\n(4) 94 — page table[3]에서 읽은 memory frame number\n(5) 8191 (= 2¹³ − 1 = 4096×2 − 1, 한 페이지(8KB) 내 마지막 바이트의 offset)",
    expl:"offset 13비트 → 페이지 크기 8KB(2¹³). 페이지 내 최대 offset = 2¹³−1 = 8191. 2단계: outer[2]=41로 page table 찾고 → page table[3]=94가 frame number.",
    crit:"(1)page offset (2)41 (3)outer page (4)94 (5)8191 — 각 3점."},
@@ -111,7 +111,7 @@ window.EXAMS_DATA = [
 
   {n:"4", pts:"25점", tags:["가상메모리","계산","TLB","그림"],
    q:"2단계 페이지 테이블 + TLB를 이용한 주소 변환에 대해,\n(1) Logical address를 page number와 page offset으로 나누고 각 필드의 이름과 비트 길이를 쓰시오.\n(2) outer page table·page table·TLB를 거쳐 logical → physical address로 변환되는 전체 절차를, 이름·비트 길이·각 단계 주소 값과 함께 그림으로 완성하시오. [추론 보강]",
-   fig: examFig2LevelTLB21,
+   afig: examFig2LevelTLB21Ans,
    a:"(1) page number = 상위 p1(8비트) + 하위 p2(11비트), page offset = 13비트.\n    상위 8비트 = outer page table number(p1), 하위 11비트 = page table number(p2).\n(2) 절차: page table base register(=200) → outer page table(프레임 200, 엔트리 0~255) → entry 0 = 85 → page table(프레임 85, 엔트리 0~2047) → entry 6 = 10 → frame number = 10 → physical address = frame(10) ‖ offset(13비트). TLB hit 시 (6→10)으로 바로 frame 10 획득. TLB 입력은 19비트(page number).",
    crit:"(1) 0~7점. (2) 0~18점. 채점 핵심: outer table=프레임200, outer 엔트리 0~255, page table 엔트리 0~2047, TLB에 (6,10), TLB 입력 19비트, frame 10의 4번 바이트 액세스, physical address 비트열.",
    expl:"TLB hit이면 2단계 테이블을 건너뛰고 바로 frame 획득. outer page table[0]=85 → page table[6]=10."},
@@ -144,21 +144,21 @@ window.EXAMS_DATA = [
 
   {n:"2", pts:"10점", tags:["프로세스","상태도","그림"],
    q:"강의노트에 소개된 7개 상태로 구성된 프로세스 상태도를 그리고, 프로세스 스케줄러 3종류(long/medium/short-term)의 위치를 적절히 표시하시오. (상태 이름과 상태 변화를 정확히 쓸 것)",
-   fig: examFig7State,
+   afig: examFig7StateSchedAns,
    a:"강의노트 49페이지 그림. 7상태(New, Ready, Running, Blocked, Exit, Ready-suspend, Blocked-suspend).\n- Long-term scheduler: New → Ready(admit) 위치\n- Medium-term scheduler: suspend/activate(swap) 위치 — 특히 Blocked-suspend → Blocked로 갈 때 표시 필요\n- Short-term scheduler: Ready → Running(dispatch) 위치\n단, New에서 Ready-suspend로 가는 long-term scheduling 표시는 해도 되고 안 해도 됨.",
    crit:"상태도 정확도 0~5점, 스케줄러 이름·위치 정확도 0~5점. Blocked-suspend→Blocked에 mid-term scheduling 표시 필요.",
    expl:"long=입장(admit), medium=swap(suspend/activate), short=dispatch."},
 
   {n:"3", pts:"15점", tags:["파일관리","계산","inode"],
    q:"UNIX file system의 block size가 2,048byte이고 정수(블록 번호) 표현에 4byte가 필요하다고 하자. 이 파일시스템에서 표현 가능한 파일의 최대 크기를 구하시오. (단위를 명확히 표시할 것)",
-   fig: examFigInodeAddr,
+   qfig: examFigInodeAddr,
    a:"한 블록당 저장 가능한 블록 번호 개수 = 2048 / 4 = 512개.\nUNIX inode = direct 10개 + single + double + triple indirect.\n- direct: 10 × 2KB = 20 KB\n- single indirect: 512 × 2KB = 1024 KB = 1 MB\n- double indirect: 512 × 512 × 2KB = 512 MB\n- triple indirect: 512 × 512 × 512 × 2KB = 512 × 512 MB (≈ 256 GB)\n\n최대 파일 크기 = 20KB + 1MB + 512MB + (512²×512×2KB)\n             = (10 + 512 + 512² + 512³) × 2KB",
    crit:"설명·수식 정확도에 따라 0~15점. 한 블록당 주소 개수(512), 4단계 합산이 핵심.",
    expl:"한 블록당 주소 개수 = block size / 정수크기 = 2048/4 = 512. 각 단계 ×512씩 증가."},
 
   {n:"4", pts:"20점 (각 1점, 최대 20점)", tags:["입출력","비교표","그림"],
    q:"아래 표의 각 항목에 대해 Programmed I/O / Interrupt-driven I/O / DMA 별로 해당하면 O, 아니면 X를 채우시오. (마지막 행은 ①다량 데이터 ②빠른 입출력 ③느린 입출력 중 최적 사례를 고름)",
-   fig: examFigIOTable,
+   afig: examFigIOTableAns,
    a:"I/O 개시 후 context switch:    Prog=X  Int=O  DMA=O\nI/O 완료 후 interrupt 발생:     Prog=X  Int=O  DMA=O\nI/O 완료로 인한 context switch: Prog=X  Int=O  DMA=O\nBusy waiting 이용:             Prog=O  Int=X  DMA=X\n데이터를 장치→메모리 저장을 CPU가: Prog=O  Int=O  DMA=X\nDevice driver 필요:            Prog=O  Int=O  DMA=O\n최적 입출력 사례:              Prog=②빠른  Int=③느린  DMA=①다량",
    crit:"맞은 것 하나당 1점, 최대 20점.",
    expl:"DMA만 데이터 전송에 CPU 비관여. polling(Programmed)만 busy waiting. device driver는 셋 다 필요."},
@@ -170,7 +170,7 @@ window.EXAMS_DATA = [
 
   {n:"6", pts:"10점", tags:["가상메모리","계산","2단계페이징","그림"],
    q:"2단계 페이징 시스템에서 logical address가 [p1 | p2 | page offset] = [8비트 | 11비트 | 13비트]로 분할된다.\n(1) p1, p2, page offset 각각의 이름과 용도를 쓰고, 비트 길이의 계산 근거를 보이시오.\n(2) [추론] 주어진 수치로 effective access time 또는 주소 변환 과정을 계산/설명하시오.",
-   fig: examFig2LevelPaging20,
+   afig: examFig2LevelPaging20Ans,
    a:"(1)\n- p1 = outer page table index(root/outer page table 번호) — outer 페이지 테이블의 엔트리를 지정. 8비트.\n- p2 = page table index(하위 레벨 페이지 테이블의 엔트리 지정). 11비트.\n- page offset = 한 페이지 내 바이트 위치. 13비트.\n계산 근거: page size = 8KB = 2¹³ → offset 13비트. 한 페이지에 들어갈 PTE 수 = 8KB / 4byte = 2¹³/2² = 2¹¹ = 2,048개 → p2 = 11비트. 남은 32−13−11 = 8비트 = p1.\n(2) [추론] TLB miss 시 outer table(1회) + page table(1회) + 데이터(1회) = 메모리 3회 접근. EAT = hit×(ε+1) + miss×(ε+3) 형태로 계산.",
    crit:"그림 0~4점, 이름·용도 0~3점, 크기 계산과정 0~3점. 총 10점.",
    expl:"offset=log2(page size). p2=log2(page size / PTE크기). p1=나머지."},
@@ -192,7 +192,7 @@ window.EXAMS_DATA = [
 
   {n:"3", pts:"10점", tags:["파일관리","비교표","그림"],
    q:"contiguous allocation과 indexed allocation을 비교하는 아래 표의 빈 칸을 채우시오. (file size 증가 용이성 / External fragmentation 가능 여부 / 안정성 / 필요한 data block 공간 / 순차 access 속도)",
-   fig: examFigAllocTable,
+   afig: examFigAllocTableAns,
    a:"contiguous allocation: 크기증가 어려움 / External 발생(Yes) / 안정성 좋음 / 공간 소 / 순차 access 빠름.\nindexed allocation: 크기증가 쉬움 / External 없음(No) / 안정성 상대적 / 공간 다(인덱스 블록 추가) / 순차 access 상대적으로 느림.",
    crit:"맞은 칸 개수당 1점, 모두 맞으면 10점.",
    expl:"contiguous=연속이라 외부단편화·확장 어려움이나 순차 빠름. indexed=흩어져 저장 가능해 외부단편화 없으나 인덱스 블록 추가 비용."},
@@ -209,7 +209,7 @@ window.EXAMS_DATA = [
 
   {n:"6", pts:"20점", tags:["메모리","계산","페이징","그림"],
    q:"16bit address, page size 2,048byte 시스템에서 logical address = 0010 0110 0001 0110 이고 page table이 (0→4, 1→15, 2→6, 3→27, 4→3, 5→14, 6→10) 일 때, physical address를 이진수로 구하는 과정을 그림으로 보이시오.",
-   fig: examFigPageTrans20y,
+   afig: examFigPageTrans20yAns,
    a:"page size 2048 = 2¹¹ → offset 11비트, page number 5비트(16−11).\nlogical = 00100 | 110 0001 0110 → page number = 00100 = 4.\npage table[4] = 3 = 00011 (frame number).\noffset(110 0001 0110)은 그대로 복사.\nphysical address = 00011 | 110 0001 0110.",
    crit:"page number 추출 → frame number 치환 → offset 유지 과정 표시.",
    expl:"offset은 변하지 않고 page number만 frame number로 교체되는 것이 페이징의 핵심."},
@@ -227,7 +227,7 @@ window.EXAMS_DATA = [
 
   {n:"2", pts:"15점", tags:["파일관리","계산","inode","그림"],
    q:"FCB를 UNIX inode처럼 사용하는 파일시스템에서, (1) 주어진 inode의 direct/indirect 구조를 따라 특정 논리 블록 번호에 해당하는 실제 디스크 블록 번호를 구하시오. (2) block size 4096byte, 블록 주소 4byte일 때 single/double/triple indirect로 표현 가능한 최대 파일 크기를 계산 과정과 함께 구하시오.",
-   fig: examFigInodeAddr,
+   qfig: examFigInodeAddr,
    a:"한 인덱스 블록당 주소 개수 = 4096 / 4 = 1024개.\n- direct(10개): 10블록\n- single indirect: 1024블록\n- double indirect: 1024² = 1,048,576블록\n- triple indirect: 1024³ = 1,073,741,824블록\n최대 파일 크기 = (10 + 1024 + 1024² + 1024³) × 4096 byte ≈ 4 TB.\n(1) inode의 direct 필드/단계별 인덱스 블록을 따라가 해당 논리 블록의 실제 디스크 블록 번호를 매핑.",
    crit:"답안지 기준. 한 블록당 1024개, 각 단계 합산이 핵심.",
    expl:"block size 4KB·주소 4byte → 슬롯 1024개. 단계마다 ×1024."},
@@ -240,7 +240,7 @@ window.EXAMS_DATA = [
 
   {n:"4", pts:"20점", tags:["가상메모리","계산","TLB","그림"],
    q:"32bit address, page size 16K byte, page table이 한 페이지에 들어가도록 만든 demand paging 시스템.\n(1) logical address 구성(각 부분 이름·비트수·계산 근거)을 그림으로 보이시오.\n(2) TLB access 0.05μs, 메모리 access 1μs, hit ratio 0.9일 때 effective access time을 구하시오.",
-   fig: examFigTLB19,
+   afig: examFigTLB19Ans,
    a:"(1) page size 16KB = 2¹⁴ → offset 14비트. PTE 4byte 가정 시 한 페이지에 16KB/4B = 2¹² = 4096개 → page table index 12비트. 남은 32−14−12 = 6비트 = outer index. 구성 [ p1 6 | p2 12 | offset 14 ].\n(2) EAT = (0.05 + 1) × 0.9 + (0.05 + 3) × 0.1 = 0.945 + 0.305 = 1.25 μs.\n   (TLB hit: ε+메모리1회. TLB miss: ε+페이지테이블 2회+데이터 1회 = ε+3.)",
    crit:"답안지 기준. offset=14, 단계 비트 분할, EAT 계산.",
    expl:"miss 시 2단계 테이블(2)+데이터(1)=메모리 3회 → +3."},
@@ -253,7 +253,7 @@ window.EXAMS_DATA = [
 
   {n:"6", pts:"10점", tags:["가상메모리","페이지교체","표"],
    q:"page frame 4개를 쓰는 프로세스의 frame 정보가 아래와 같다. (1) LRU, (2) Second chance(0번부터), (3) Enhanced second chance(0번부터)로 replace될 page 번호를 구하시오.",
-   fig: examFigPageReplace,
+   qfig: examFigPageReplaceQ, afig: examFigPageReplaceAns,
    a:"표: Page0(Load110, 최근액세스260, Ref1, Mod0), Page1(210,240,0,0), Page2(126,230,0,0), Page3(165,264,1,1).\n(1) LRU: 최근 액세스 시각이 가장 오래된(작은) → 230인 Page 2.\n(2) Second chance(0번부터, ref bit): P0(ref=1)→0으로 클리어 후 통과, P1(ref=0) → replace = Page 1.\n(3) Enhanced second chance((ref,mod) (0,0) 우선, 0번부터): P1(0,0) → replace = Page 1.\n   (P2도 (0,0)이나 0번부터 순회 시 P1을 먼저 만남)",
    crit:"답안지 기준 채점.",
    expl:"LRU=최근사용 최소. Second chance=ref 0 첫 만남. Enhanced=(0,0)>(0,1)>(1,0)>(1,1) 순."},
@@ -266,7 +266,7 @@ window.EXAMS_DATA = [
 
   {n:"8", pts:"10점", tags:["스케줄링","계산","Gantt","표"],
    q:"다음과 같이 프로세스가 도착했을 때 ① Round Robin(time quantum 2), ② Priority scheduling(preemptive)에 대해 (1) Gantt chart를 그리고 (2) 각 프로세스의 waiting/turnaround time 표를 완성하시오. (Priority는 숫자가 작을수록 높음)",
-   fig: examFigSched19,
+   qfig: examFigSched19Q,
    a:"프로세스: P1(도착0,서비스2,우선5) P2(3,6,3) P3(4,3,1) P4(4,2,2) P5(5,6,4)\n\nturnaround = 완료 − 도착, waiting = turnaround − service.\n① Round Robin(TQ=2): 도착·큐 순서를 추적해 2단위로 순환 배치.\n② Priority(preemptive): 도착마다 현재 실행 프로세스와 우선순위 비교, 더 높은(숫자 작은) 것이 오면 선점. 선점당한 프로세스는 ready queue로 복귀.\n(구체 수치는 도착·서비스 표로 간트차트를 직접 작성해 계산 — 자가 풀이용)",
    crit:"Gantt 정확도 알고리즘당 0~2.5점(시작부터 틀리면 0.5점). 표 셀 맞은 개수당 0.25점.",
    expl:"turnaround=완료−도착, waiting=turnaround−service. preemptive priority는 도착 시마다 비교."},

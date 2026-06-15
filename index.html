@@ -189,6 +189,14 @@ tbody tr:hover{background:var(--surface-2)}
 .toc a.active{background:var(--blue);color:#fff}
 .toc a .tn{flex:none;font-size:11px;font-weight:800;opacity:.6}
 .toc a.active .tn{opacity:.85}
+/* 전체 목차: 챕터 헤더 + 소단원 */
+.toc a.toc-chap{font-size:13.5px;font-weight:800;color:var(--ink);margin-top:6px}
+.toc a.toc-chap:first-child{margin-top:0}
+.toc a.toc-chap.cur{background:var(--blue-softer);color:var(--blue-deep)}
+.toc a.toc-chap .tn{opacity:1}
+.toc a.toc-sub{padding-left:24px;font-size:12.7px;font-weight:600;color:var(--ink-2)}
+.toc a.toc-sub .tn{font-size:10px}
+.toc a.toc-sub.active{background:var(--blue);color:#fff}
 
 .slide-stream{min-width:0}
 /* section header in stream */
@@ -246,6 +254,10 @@ tbody tr:hover{background:var(--surface-2)}
   .toc h5{display:none}
   .toc a{flex:none;white-space:nowrap;padding:7px 12px;border:1px solid var(--line-2);background:var(--surface-2)}
   .toc a.active{border-color:var(--blue)}
+  /* 모바일: 가로 목차가 길어지지 않게 다른 챕터 헤더는 숨기고 현재 챕터 소단원만 (챕터 전환은 위 탭으로) */
+  .toc a.toc-chap{display:none}
+  .toc a.toc-chap.cur{display:flex;background:var(--blue);color:#fff;border-color:var(--blue)}
+  .toc a.toc-sub{padding-left:12px}
 }
 
 /* ---------- Summary view ---------- */
@@ -1293,10 +1305,18 @@ function viewSlides(){
   const subSections=sections.filter((sec,i)=>i>0);
 
   h+='<div class="slide-layout">';
-  // ---- TOC sidebar ----
-  h+='<nav class="toc"><h5>'+c.title+' 목차</h5>';
-  subSections.forEach((sec,i)=>{
-    h+='<a onclick="jumpSlide('+sec.n+')" data-sec="'+sec.n+'"><span class="tn">'+(i+1)+'</span><span>'+esc(stripParen(sec.title))+'</span></a>';
+  // ---- TOC sidebar (전체 목차: 모든 챕터 + 현재 챕터는 소단원 펼침) ----
+  h+='<nav class="toc"><h5>전체 목차</h5>';
+  CHAPTERS.forEach(ch=>{
+    const isCur=ch.id===state.chap;
+    h+='<a class="toc-chap'+(isCur?' cur':'')+'" onclick="setChap(\''+ch.id+'\')"><span class="tn" style="color:'+ch.color+'">'+ch.n+'</span><span>'+esc(ch.title)+'</span></a>';
+    if(isCur){
+      // 현재 챕터만 소단원 펼침
+      const secs=(window.SLIDE_SECTIONS&&window.SLIDE_SECTIONS[ch.id]||[]).filter((sec,i)=>i>0);
+      secs.forEach((sec,i)=>{
+        h+='<a class="toc-sub" onclick="jumpSlide('+sec.n+')" data-sec="'+sec.n+'"><span class="tn">'+(i+1)+'</span><span>'+esc(stripParen(sec.title))+'</span></a>';
+      });
+    }
   });
   h+='</nav>';
 
@@ -1530,7 +1550,7 @@ function render(){
 let _spy=null;
 function setupSlideSpy(){
   if(_spy) window.removeEventListener('scroll',_spy);
-  const tocLinks=[...document.querySelectorAll('.toc a')];
+  const tocLinks=[...document.querySelectorAll('.toc a[data-sec]')];
   if(!tocLinks.length) return;
   const heads=tocLinks.map(a=>document.getElementById('slide-'+state.chap+'-'+a.dataset.sec)).filter(Boolean);
   _spy=function(){

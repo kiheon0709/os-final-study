@@ -86,4 +86,37 @@ window.FINAL_DATA = [
   b:"디렉토리 데이터 블록에 **(inode번호, 이름)** 엔트리 저장.\n첫 2칸 항상 **.(자기)·..(부모)**. 루트 inode = **항상 2번**.\n이름→inode번호→inode→데이터블록 순으로 추적"},
 ]},
 
+{sec:"페이징 핵심 — 주소/비트 (헷갈림)", color:"violet", items:[
+ {t:"page / frame / PTE / offset",
+  b:"- **page** = VAS(주소 범위)를 쪼갠 조각\n- **frame** = 실제 메모리(RAM) 칸 (page 전용 X, page table·커널도 담김)\n- **PTE** = page table 한 줄 = page 1개 정보(frame#+제어비트)\n- **offset** = page 안 바이트 위치"},
+ {t:"logical / physical",
+  b:"- **logical** = VAS의 주소(CPU가 봄, =virtual)\n- **physical** = 실제 RAM 주소\n- 변환: logical[page#|offset] → page table → physical[frame#|offset]\n- **page#만 frame#로 바뀌고 offset은 그대로**"},
+ {t:"offset 비트 = log₂(페이지 크기)",
+  b:"- 4KB=2¹²→12비트, 8KB=2¹³→13비트, 2KB=2¹¹→11비트\n- **비트 나누기 = 2의 제곱만큼 칸 만들기** (n비트=2ⁿ개)\n- 비트→개수→크기: 10비트=1024개, ×4byte=4KB\n- 주의: 논리주소 하위=offset / PTE 하위=제어비트 (다른 것!)"},
+ {t:"VAS / page table 크기",
+  b:"- VAS = 2^(주소비트). 32비트→**4GB**(=주소 범위, 데이터 양 무관)\n- page 개수 = VAS÷페이지 = 4GB÷4KB = **1M개**\n- page table = 1M × PTE 4byte = **4MB**\n- **K=1024**(1000 아님!)\n- page table은 **메모리에** 있음(PCB엔 위치만)"},
+]},
+
+{sec:"가상 메모리 — VAS·demand·다단계", color:"violet", items:[
+ {t:"가상 메모리 = RAM + 디스크",
+  b:"실제 RAM보다 큰 것처럼 씀. 지금 쓰는 page만 RAM, 나머지 디스크.\n**VAS는 디스크에 통째로 있는 게 아님** — 추상적 주소 범위, 내용(page)이 RAM/디스크에 흩어짐"},
+ {t:"demand paging ≠ page fault",
+  b:"- **demand paging** = 방식(필요할 때만 올림)\n- **page fault** = 그 방식의 사건(없는 page 접근 시)\n- 전체를 VAS에 잡고(빈 곳도 page로 미리 나눔), 필요한 것만 RAM 적재"},
+ {t:"전용 사본 vs 공유",
+  b:"- **stack/data** = 변해서 프로세스 전용 사본\n- **code/kernel** = 안 변해 원본 하나 공유 (code는 실행파일에 실체 있음, 단지 전용 복사 안 함)"},
+ {t:"2단계 페이지 테이블",
+  b:"page table(4MB)이 frame(4KB) 하나에 안 들어감 → **page table도 4KB씩 쪼개 frame에 흩어 담음**.\n조각 위치는 **outer(root) table**이 기록(항상 메모리).\n[p1|p2|offset]: p1·p2 = log₂(조각당 엔트리 수)"},
+]},
+
+{sec:"TLB · 주소변환 흐름 — 시험 단골", color:"green", items:[
+ {t:"TLB = CPU 안 변환 캐시",
+  b:"page table을 매번 메모리에서 보면 CPU 기준 느림(메모리도 느림) → CPU 안에 (page#→frame#) 캐싱.\n**병렬 비교(associative)** 로 즉시 찾음. PTE 정보(frame#+제어비트) 담음. 작지만 **locality** 덕에 hit률↑"},
+ {t:"전체 흐름 (2단계)",
+  b:"① 변환: TLB 확인\n- hit → frame# 즉시 (메모리 X)\n- miss → 메모리 page table → frame# (없으면 page fault → 디스크 page in → 인터럽트 → 재시도)\n② 데이터: 물리주소(frame#+offset)로 메모리 가서 읽음"},
+ {t:"메모리 접근 횟수 (EAT 기초)",
+  b:"- TLB hit: 메모리 **1번**(데이터)\n- miss(단일): **2번**(테이블+데이터)\n- miss(2단계): **3번**\n- EAT = hit율×(hit시간) + miss율×(miss시간) ※기출 단골"},
+ {t:"page fault 처리",
+  b:"없는 page 접근 → **blocked**(디스크 느림) → 디스크 page in(RAM 꽉 차면 victim 교체, modify=1이면 disk write) → 완료 인터럽트 → **ready** → 명령 재실행.\n**modify bit** = disk write 줄이려고(Enhanced Second Chance)"},
+]},
+
 ];

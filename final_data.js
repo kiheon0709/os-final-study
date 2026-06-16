@@ -104,6 +104,8 @@ window.FINAL_DATA = [
   b:"- **demand paging** = 방식(필요할 때만 올림)\n- **page fault** = 그 방식의 사건(없는 page 접근 시)\n- 전체를 VAS에 잡고(빈 곳도 page로 미리 나눔), 필요한 것만 RAM 적재"},
  {t:"페이징 → 가상메모리 → multiprogramming (인과·헷갈림)",
   b:"셋은 같은 게 아니라 **순서대로 쌓인 인과**:\n- **페이징(쪼갬)** = 전제. 통짜면 일부만 못 올림 → page 단위로 잘라야 비연속·일부 적재 가능\n- **가상메모리(demand paging)** = 그 위에서 '필요한 page만 올림' → 프로세스당 프레임↓\n- **degree of multiprogramming↑** = 그래서 실제 메모리보다 많은 프로세스 동시 적재\n→ 시험: '무엇이 multiprogramming을 늘리나' = **가상메모리** / '가상메모리를 가능케 한 건' = **페이징**\n과하게 늘리면 → **thrashing**"},
+ {t:"victim 고르기 — page 단위 vs process 단위 (연결)",
+  b:"'내보낼 거 고르기' 발상은 같고 **단위·파트만 다름**:\n- **victim page** — 파트: **페이지 교체**(Clock/LRU/Enhanced). 뭐: 메모리 꽉 찼을 때 내보낼 **page 1개** 선택. 연관: page fault, modify bit, swap out\n- **victim process** — 파트: **스케줄링의 medium-term**(+thrashing 해결). 뭐: 메모리에 너무 많을 때 **프로세스 통째로** suspend(swap out) → degree of multiprogramming↓. 연관: thrashing, process suspension, Suspended 상태\n→ 둘 다 'swap out 대상 고르기'지만 **page(가상메모리) vs process(스케줄러)** 로 단위가 다름"},
  {t:"교체 알고리즘 ≠ thrashing 해결 (층위 다름·함정)",
   b:"- **교체 알고리즘**(Clock/Enhanced/LRU) = 프레임 부족 시 '**누구를 victim으로**'(선택의 질)\n- **Thrashing** = 애초에 '**프레임이 절대 부족**' → 뭘 골라도 곧 쓸 걸 내보냄 → 선택 무의미\n- Enhanced Clock은 modify=0 우선 victim → swap out **1회 비용↓**(disk write 생략)일 뿐, swap **횟수**는 못 줄임\n→ thrashing 해결 = 알고리즘 X, **프레임 확보(process suspension)·multiprogramming↓** O"},
  {t:"Page 연속 = VAS 기준, 물리 frame은 비연속 (2D 배열 예시·함정)",

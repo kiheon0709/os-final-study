@@ -250,5 +250,59 @@ window.QNA = [
 
 {unit:"07", topic:"Interrupt-driven I/O 흐름 (블록 · 완료 인터럽트 · IRQ)", star:true,
  q:"IRQ가 뭐야? 완료 신호가 컨트롤러 → 드라이버 → PIC로 가는 거야?",
- a:"**IRQ(Interrupt ReQuest) = 장치가 CPU에게 '인터럽트 걸게!'라고 보내는 신호(선). 그리고 IRQ는 드라이버를 안 거침.**\n\n**핵심: 경로가 2개**\n- **제어/데이터 경로**: 드라이버 ↔ 컨트롤러 (레지스터로 명령·데이터 주고받기) — 소프트웨어 경로\n- **IRQ(인터럽트) 경로**: 컨트롤러 → PIC → CPU (하드웨어 신호선) — **드라이버 안 거침!**\n\n**왜 드라이버 안 거치나**: IRQ는 전기 신호(하드웨어)라 코드(드라이버)를 '거칠' 수 없음. IRQ로 CPU를 깨운 **다음**, CPU가 ISR(드라이버 완료 처리 코드)을 실행.\n\n**완료 흐름**: 장치 I/O 완료 → 컨트롤러가 IRQ → PIC → CPU → 인터럽트 핸들러 → IDT → ISR(데이터 회수+P1 깨우기) → Process Management → 스케줄러가 우선순위로 다음 프로세스 결정.\n\n**비유**: 컨트롤러의 '완성 벨(IRQ)'이 사장실(CPU)로 직통. 직원(드라이버)은 사장이 들은 뒤 부르면 일함."}
+ a:"**IRQ(Interrupt ReQuest) = 장치가 CPU에게 '인터럽트 걸게!'라고 보내는 신호(선). 그리고 IRQ는 드라이버를 안 거침.**\n\n**핵심: 경로가 2개**\n- **제어/데이터 경로**: 드라이버 ↔ 컨트롤러 (레지스터로 명령·데이터 주고받기) — 소프트웨어 경로\n- **IRQ(인터럽트) 경로**: 컨트롤러 → PIC → CPU (하드웨어 신호선) — **드라이버 안 거침!**\n\n**왜 드라이버 안 거치나**: IRQ는 전기 신호(하드웨어)라 코드(드라이버)를 '거칠' 수 없음. IRQ로 CPU를 깨운 **다음**, CPU가 ISR(드라이버 완료 처리 코드)을 실행.\n\n**완료 흐름**: 장치 I/O 완료 → 컨트롤러가 IRQ → PIC → CPU → 인터럽트 핸들러 → IDT → ISR(데이터 회수+P1 깨우기) → Process Management → 스케줄러가 우선순위로 다음 프로세스 결정.\n\n**비유**: 컨트롤러의 '완성 벨(IRQ)'이 사장실(CPU)로 직통. 직원(드라이버)은 사장이 들은 뒤 부르면 일함."},
+
+/* ====================== 08 메모리 관리 — 주소/단편화 ====================== */
+{unit:"08", topic:"주소 종류 · 바인딩 · relocation", star:true,
+ q:"logical / physical / relative 주소 차이, 그리고 relocation 때 뭐가 바뀌어?",
+ a:"**3종류**\n- **physical**: 메모리 하드웨어가 보는 실제 주소(=absolute, 예 90,070)\n- **logical**: CPU가 보는 주소(프로세스 시작 기준, 예 70). =virtual\n- **relative**: 시작점 기준 상대 주소 방식 (logical이 곧 relative)\n\n**relocation(프로세스 위치 이동) 때**: **logical은 안 바뀌고 physical만 바뀜!**\n- logical = 프로그램 코드에 박힌 '시작점 기준 70' → 어디 올리든 그대로\n- physical = 실제 메모리 위치 → 옮기면 90,070→50,070으로 바뀜\n- → base만 바꾸면 됨 (physical = base + logical)\n\n**logical == physical?**: compile-time·load-time 바인딩에선 같고, **execution-time 바인딩에선 다름**(이때만 실행 중 이동 가능)."},
+
+{unit:"08", topic:"주소 종류 · 바인딩 · relocation",
+ q:"relocation은 언제 일어나? 상태 전이(running↔ready)로도 위치 바뀌어?",
+ a:"**relocation = 메인 메모리 안에서 프로세스 실제 위치(physical)가 바뀌는 것.**\n\n- **running↔ready↔blocked 전이**: 메모리에 그대로 있음 → 위치 안 바뀜 (relocation X)\n- **relocation 일어나는 2경우**:\n  - **swap in/out**: 디스크 갔다가 다른 frame으로 복귀\n  - **compaction**: 외부 단편화 없애려 프로세스를 옆으로 밀 때\n- → 둘 다 execution-time binding이어야 가능(base만 바꿔 이동).\n\n**실행 중인 프로세스도 옮길 수 있나?**: execution-time binding이면 가능(잠깐 멈춘 사이 옮기고 base만 갱신, logical 그대로라 이어서 실행)."},
+
+{unit:"08", topic:"단편화 · 분할 방식 (고정/가변/버디/세그/페이징)", star:true,
+ q:"compaction이 뭐야? 빈 공간 합치는 건 포인터로 연결하는 거 아니야?",
+ a:"**포인터 연결은 디스크(파일) 얘기, compaction은 메모리 얘기. 다름.**\n\n- **디스크(파일)**: 흩어 저장하고 inode/포인터로 연결 가능 (불연속 OK)\n- **메모리 연속 할당**: 프로세스가 연속된 한 덩어리여야 함 → 흩어 못 둠\n  → 빈 공간 합치려면 **프로세스를 실제로 옆으로 밀어 이동**(compaction)\n\n**compaction**: 외부 단편화(빈 공간 흩어짐) 없애려고, 프로세스들을 한쪽으로 밀어 **빈 공간을 한 덩어리로** 모음. → 이동하니 physical 바뀜 → relocation 필요 → execution-time binding 필요."},
+
+{unit:"08", topic:"단편화 · 분할 방식 (고정/가변/버디/세그/페이징)", star:true,
+ q:"버디 시스템 정리. 합칠 때 크기만 같으면 합쳐져?",
+ a:"**버디 = 메모리를 2의 제곱 단위로 쪼개고(반으로) 합치는(버디끼리) 방식.**\n\n- 요청보다 큰 가장 작은 2의 제곱을 줌 (100요청→128할당, 내부 단편화)\n- release 시 **buddy(짝)가 비었으면 합쳐** 더 큰 블록으로\n\n**합칠 때 크기만 같으면?** → **아니! 버디(원래 한 블록에서 쪼개진 정해진 짝)끼리만.** 크기 같아도 버디 아니면 못 합침. 버디는 주소로 고정(짝이 딱 하나) → 합쳐야 주소 연속된 온전한 블록 복원.\n\n**시험 함정**: 'buddy=2의 제곱 단위'(정답) vs 'buddy=같은 사이즈 단위'(틀림, 그건 고정 분할)."},
+
+{unit:"08", topic:"단편화 · 분할 방식 (고정/가변/버디/세그/페이징)", star:true,
+ q:"세그멘테이션 vs 동적 분할 vs 페이징 — 차이가 뭐야? 다 불연속이야?",
+ a:"**쪼개는 단위와 연속/불연속이 핵심.**\n\n- **동적 분할**: 프로세스를 **통째로 연속** 배치(가변 크기). → 연속! (불연속 아님)\n- **세그멘테이션**: 프로세스를 **논리 단위(code/data/stack)로** 쪼개 흩어(가변, 불연속)\n- **페이징**: **고정 크기**로 쪼개 흩어(불연속)\n\n쪼개는 정도: 동적분할(통째) < 세그멘테이션(의미 단위) < 페이징(고정 크기, 더 잘게)\n\n**단편화**:\n- 페이징 = **외부 없음, 내부만**(마지막 페이지, 작음)\n- 세그멘테이션 = **외부 있음(큼)** — 가변이라 fit 알고리즘+빈틈+compaction 필요 → 페이징보다 느림\n- 동적분할 = 외부 단편화, 고정분할 = 내부 단편화\n\n**왜 앞 방식들 배우나**: 다 단편화 한계가 있어서 페이징(외부 단편화 해결)이 왜 필요한지 보여주는 발전 단계."},
+
+/* ====================== 09 가상 메모리 — VAS/페이징/페이지테이블 ====================== */
+{unit:"09", topic:"가상 메모리 · VAS 개념", star:true,
+ q:"가상 메모리가 왜 메인+디스크야? VAS는 디스크에 있는 거야?",
+ a:"**가상 메모리 = RAM(메인) + 디스크(보조)를 합쳐, 실제 RAM보다 큰 메모리가 있는 것처럼 쓰는 기법.**\n- 지금 쓰는 page만 RAM, 나머지는 디스크 → RAM 크기에 제한 안 받고 큰 프로세스 실행\n\n**VAS가 디스크에 있나? → 아니!** VAS = **주소 번호의 범위(추상적 개념)**라 어디에도 통째로 저장 안 됨.\n- VAS의 **내용(page)** 이 RAM(쓰는 것)·디스크(안 쓰는 것)·실행파일(code)에 **흩어져** 있음\n- '가상 메모리=RAM+디스크'는 이 **내용물의 분산**을 말함, VAS 자체가 아님\n\n**VAS 크기**: 2^(주소 비트 수). 32비트→4GB, 64비트→16EB. '4GB 고정'은 32비트 한정."},
+
+{unit:"09", topic:"가상 메모리 · VAS 개념", star:true,
+ q:"프로세스 실행 순서: VAS 먼저? 전체를 가상메모리에 올리고 필요한 것만 RAM?",
+ a:"**맞음. ① VAS 전체 할당(주소 범위만, 실제 메모리 X) → ② page로 쪼갬 → ③ 필요한 page만 RAM 적재(demand paging), 나머지는 디스크.**\n\n- '남은 것만 VAS'가 아니라 **전체가 VAS**, 그중 일부만 RAM\n- '부족해서 디스크'가 아니라 **처음부터 필요한 것만 RAM, 나머지 디스크가 설계**(demand paging)\n- 빈 곳(안 쓰는 주소)도 처음부터 page로 잘려있음 → **page = 데이터가 아니라 '주소 범위'를 자른 것**\n\n**전용 사본 vs 공유**: stack/data는 변해서 프로세스 전용 사본(VAS에 실체), code·kernel은 안 변해 원본 하나 공유(실행파일/메모리 가리킴). ※ code도 실행파일에 실체는 있음 — 단지 전용 복사 안 하고 공유."},
+
+{unit:"09", topic:"페이징 · page/frame/PTE/offset", star:true,
+ q:"page, frame, PTE, offset 관계 한 번에 정리",
+ a:"**핵심 관계**\n- **page** = VAS를 쪼갠 조각\n- **frame** = 실제 메모리(RAM)를 쪼갠 칸 (page 전용 아님! page table·커널도 frame에 담김)\n- **PTE** = page table의 한 줄 = page 1개 정보(frame번호 + valid/modify 등 제어비트)\n- **offset** = 그 page 안에서의 바이트 위치\n\n**주소 변환**: logical [page number | offset] → page number로 page table에서 PTE 찾음 → frame번호 꺼냄 → frame번호+offset = physical. **page번호만 frame번호로 바뀌고 offset은 그대로.**\n\n**page table은 메인 메모리에** 있음(매 접근마다 봐야 해서 디스크는 너무 느림). PCB엔 page table 자체가 아니라 '위치(PTBR)'만."},
+
+{unit:"09", topic:"페이징 · page/frame/PTE/offset", star:true,
+ q:"offset 비트 수 구하는 법 + 비트↔개수↔크기 연결",
+ a:"**핵심 다리 2개**\n- **비트→개수**: n비트 = 2ⁿ개 (10비트=1024개, 12비트=4096개)\n- **개수→크기**: 개수 × 한 칸 크기 (PTE 1024개 × 4byte = 4KB)\n\n**offset 비트 수 = log₂(페이지 크기)**\n- 페이지 4KB=2¹² → offset 12비트, 8KB=2¹³ → 13비트, 2KB=2¹¹ → 11비트\n- 이유: 페이지 안 칸(바이트)을 다 가리키려면 log₂(칸 개수) 비트\n\n**비트 나누기 = 2의 제곱만큼 공간(칸) 만들기.** 컴퓨터는 2진수라 모든 게 2의 제곱으로 떨어져서 비트로 깔끔하게 잘림.\n\n**주의**: 논리주소의 하위비트 = **offset**(페이지 안 위치), PTE의 하위비트 = **control bits**(제어비트, 상태). 둘 다 같은 비트수라 헷갈리지만 다른 것! (논리주소 [page#|offset] vs PTE [frame#|control])"},
+
+{unit:"09", topic:"페이징 · page/frame/PTE/offset",
+ q:"page table 크기가 VAS에 비례한다는 게 뭐야? 데이터 양에 따라 달라지는 거 아냐?",
+ a:"**page table 크기는 '데이터가 얼마나 찼냐'가 아니라 'VAS 주소 범위(비트 수)'로 정해짐.**\n\n- page table은 VAS의 **모든 page**에 한 줄씩(안 쓰는 page도 valid=0으로 기록) → 데이터 양 무관\n- VAS 크면 page 많음 → PTE 많음 → page table 큼 (∝ VAS 범위)\n\n**계산 (32비트, 4KB)**:\n- page 개수 = 4GB ÷ 4KB = 2³²/2¹² = 2²⁰ = **1M개**\n- PTE 4byte → page table = 1M × 4byte = **4MB**\n\n**K=1024 주의**: 컴퓨터에서 1K=1000 아니라 **1024(2¹⁰)**. 4MB÷4KB = 2²²/2¹² = 2¹⁰ = 1024(=1K)."},
+
+{unit:"09", topic:"2단계(multi-level) 페이지 테이블", star:true,
+ q:"왜 page table을 또 쪼개? 2단계 페이지 테이블이 뭐야?",
+ a:"**page table(4MB)이 너무 커서 frame 하나(4KB)에 못 담음 → page table도 page처럼 쪼개서 frame에 흩어 담음.**\n\n- **frame은 메모리 칸** → page table도 메모리에 있으니 frame에 담김. 4MB라 4MB÷4KB = **1024개 frame**에 걸침\n- → page table을 **4KB씩 1024조각(inner)** 으로 쪼갬\n- 흩어진 조각들의 위치를 **root(outer) page table**이 기록\n\n**왜 다단계 필요?**: 통째로 두면 연속 4MB 필요(어려움) + 64비트면 RAM보다 큼 → 쪼개서 필요한 조각만 메모리(demand paging), 나머지 디스크. (root는 항상 메모리)"},
+
+{unit:"09", topic:"2단계(multi-level) 페이지 테이블", star:true,
+ q:"2단계에서 비트를 왜 p1(10)+p2(10)+offset(12)로 나눠? outer/inner 둘 다 4KB인 이유?",
+ a:"**모든 table 조각을 페이지 크기(4KB)에 맞춰 frame에 담고 demand paging 하려고.**\n\n**계산 (32비트, 4KB, PTE 4byte)**\n- offset = log₂(4KB) = **12비트**\n- inner 1조각 = 4KB ÷ PTE 4byte = 1024개 = 2¹⁰ → **p2 = 10비트**\n- inner 조각이 1024개 → outer 엔트리 1024개 = 2¹⁰ → **p1 = 10비트**\n- → [p1 10 | p2 10 | offset 12] = 32비트\n\n**outer/inner 둘 다 4KB인 이유**: inner = PTE 1024개×4byte = 4KB, outer = 엔트리 1024개×4byte = 4KB (outer는 '주소만' 담아도 조각이 1024개라 4KB). 검산: 1024(조각)×1024(조각당 PTE) = 1M page ✅\n\n**비트 나누기 = 2의 제곱만큼 칸 만들기** — 4KB 조각=1024개=2¹⁰이라 10비트로 나눔."},
+
+{unit:"09", topic:"page fault · victim · 페이지 교체", star:true,
+ q:"page fault 처리 흐름 (메모리 꽉 찼을 때) + victim + modify bit",
+ a:"**page fault = 필요한 page가 RAM에 없을 때. demand paging이라 미리 안 올리고, 없으면 그때 디스크에서 가져옴.**\n\n**흐름**: running 중 page 없음 → page fault → 프로세스 **blocked**(디스크 I/O 느려서, CPU는 딴 프로세스) → 디스크에서 page in → **ready** → 차례 오면 **running**(그 명령 재실행).\n\n**RAM 꽉 찬 경우 (페이지 교체)**:\n- 빈 frame 없음 → 내쫓을 page(**victim**) 선택\n- victim disk write(page out) + 새 page disk read(page in) = **디스크 2번**\n- 단 victim이 **수정 안 됨(modify=0)이면 그냥 버림**(디스크에 원본 있음) → write 생략, 디스크 1번\n- → **modify bit가 중요**: disk write를 줄이려고. (Enhanced Second Chance의 핵심)\n\n**'뭘 버릴지' 정하는 게 페이지 교체 알고리즘**: FIFO/LRU/Clock/Enhanced second chance (아직 진도 전이면 곧 나옴)."}
 ];

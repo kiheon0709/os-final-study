@@ -1214,6 +1214,27 @@ function saveState(){
 function loadSaved(){
   try{ return JSON.parse(localStorage.getItem(SKEY)||'null'); }catch(e){ return null; }
 }
+/* ---- 기출/연습 풀이 상태 영속화 (OX 선택 + 정답 펼침) ---- */
+const EXKEY='os_final_exam_progress_v1';
+let _examProgress={ox:{}, ans:{}};   // ox: {oid:'O'|'X'}, ans:{gid:true}
+function loadExamProgress(){
+  try{ const p=JSON.parse(localStorage.getItem(EXKEY)||'null'); if(p&&p.ox&&p.ans) _examProgress=p; }catch(e){}
+}
+function saveExamProgress(){
+  try{ localStorage.setItem(EXKEY, JSON.stringify(_examProgress)); }catch(e){}
+}
+/* 렌더 직후 저장된 OX 선택·정답 펼침을 화면에 복원 */
+function restoreExamProgress(){
+  // 정답 펼침 복원
+  Object.keys(_examProgress.ans||{}).forEach(gid=>{
+    if(_examProgress.ans[gid]){ const a=document.getElementById(gid); if(a) a.classList.add('show'); }
+  });
+  // OX 선택 복원 (answerOX를 재적용하되 저장은 건너뜀)
+  Object.keys(_examProgress.ox||{}).forEach(oid=>{
+    const el=document.getElementById(oid);
+    if(el) answerOX(oid, _examProgress.ox[oid], true);
+  });
+}
 let _saveTimer=null;
 function scheduleSave(){ clearTimeout(_saveTimer); _saveTimer=setTimeout(saveState,200); }
 window.addEventListener('scroll',scheduleSave,{passive:true});
@@ -1554,8 +1575,15 @@ function pickOpt(el){
   if(correct){el.classList.add('correct');}
   else{el.classList.add('wrong');opts.forEach(o=>{if(o.dataset.correct==='1')o.classList.add('correct');});}
 }
-function toggleAns(id){const a=document.getElementById(id);if(a)a.classList.toggle('show');}
-function answerOX(oid,pick){
+function toggleAns(id){
+  const a=document.getElementById(id);
+  if(!a)return;
+  a.classList.toggle('show');
+  _examProgress.ans[id]=a.classList.contains('show');
+  if(!_examProgress.ans[id]) delete _examProgress.ans[id];
+  saveExamProgress();
+}
+function answerOX(oid,pick,restoring){
   const el=document.getElementById(oid);
   if(!el)return;
   const ans=el.getAttribute('data-ans');
@@ -1572,6 +1600,7 @@ function answerOX(oid,pick){
   const vd=el.querySelector('.ox-verdict');
   if(vd) vd.innerHTML = ok ? '<span class="vok">✓ 정답!</span>' : '<span class="vno">✗ 오답 — 정답은 '+ans+'</span>';
   updateOXScore(oid);
+  if(!restoring){ _examProgress.ox[oid]=pick; saveExamProgress(); }
 }
 function updateOXScore(oid){
   const list=oid.replace(/_o\d+$/,'_ox');
@@ -1593,9 +1622,11 @@ function resetOX(listId){
     el.classList.remove('done','ok','no');
     el.querySelectorAll('.ox-btns button').forEach(b=>b.classList.remove('sel-ok','sel-no','show-ans','pick'));
     const vd=el.querySelector('.ox-verdict'); if(vd) vd.innerHTML='';
+    if(el.id) delete _examProgress.ox[el.id];   // 저장된 선택도 제거
   });
   const score=document.getElementById(listId.replace(/_ox$/,'_score'));
   if(score) score.style.display='none';
+  saveExamProgress();
 }
 function setChap(c){
   saveState();                       // 현재 챕터 스크롤 저장
@@ -1633,6 +1664,7 @@ function render(){
   app.innerHTML='<div class="view active">'+html+'</div>';
   app.classList.toggle('wide', state.view==='slides');
   if(state.view==='slides') setupSlideSpy();
+  if(state.view==='exam'||state.view==='mock') restoreExamProgress();
 }
 
 /* TOC scroll-spy: highlight current section */
@@ -1654,6 +1686,7 @@ function setupSlideSpy(){
 
 /* ---- 시작: 저장된 뷰·스크롤 복원 ---- */
 (function init(){
+  loadExamProgress();
   const sv=loadSaved();
   let deepLinked=false;
   if(sv){

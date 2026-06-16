@@ -134,9 +134,23 @@ window.EXAMS_DATA = [
  note:"문제지가 남아있지 않아 채점기준(답안키)으로 문제를 역복원함. 보기 문장은 의미를 살려 재구성([추론]).", items:[
 
   {n:"1", pts:"20점", tags:["종합","OX"],
-   q:"다음 (1)~(10) 중 옳은 것 4개, 틀린 것 6개이다. 틀린 것의 번호를 고르고 그 이유(올바른 내용)를 쓰시오. [보기는 답안키 기반 복원]\n(1) time slice가 짧을수록 degree of multiprogramming이 증가한다. [추론]\n(2) 프로세스가 new 상태가 되면 스케줄러가 실행된다. [추론]\n(4) 입출력 완료를 기다리는 프로세스는 ready 상태로 대기한다. [추론]\n(7) Spooling이 output을 저장하는 곳은 main memory이다. [추론]\n(8) turnaround time은 프로세스의 순수 실행시간만을 의미한다. [추론]\n(10) 시스템 콜 호출 시 참조하는 표는 interrupt vector table이다. [추론]",
-   a:"틀린 것 6개:\n(1) degree of multiprogramming이 아니라 throughput과 관련(혹은 그 반대) — 답안키: 'throughput 임'.\n(2) new 상태가 아니라 ready 상태가 되면 스케줄러가 실행됨.\n(4) ready가 아니라 block 상태로 기다림.\n(7) Spooling은 main memory가 아니라 디스크(파일)에 저장.\n(8) turnaround time에서 실행시간뿐 아니라 block 상태로 기다린 시간도 포함해야 함.\n(10) interrupt vector table이 아니라 system call table.",
-   crit:"맞은 것 각 2점, 틀린 것 번호+이유 각 0~2점(고치지 못하면 0점), 총 20점."},
+   q:"종합 OX — 옳은 것 4개, 틀린 것 6개. 맞으면 O, 틀리면 X.",
+   oxIntro:"(1)~(10) 중 옳은 것 4개·틀린 것 6개입니다. 각 보기의 정오를 판단하고, 틀린 것은 번호와 이유(올바른 내용)를 쓰시오. (일부 보기는 답안키 기반 복원)",
+   ox:[
+    {n:"(1)", ans:"X", stmt:"time slice가 짧을수록 degree of multiprogramming이 증가한다.", expl:"time slice는 **degree of multiprogramming(동시에 메모리에 적재된 프로세스 수)과 무관**하다. 짧아지면 **context switch 급증**으로 **throughput 감소**(response time만 짧아짐). 'multiprogramming 증가'가 틀린 부분."},
+    {n:"(2)", ans:"X", stmt:"프로세스가 new 상태가 되면 스케줄러가 실행된다.", expl:"new가 아니라 **ready 상태**가 되어 ready queue에 올라갔을 때 **(short-term)스케줄러**가 실행된다. new는 아직 admit(메모리 적재) 전. 'new'를 **'ready'**로 바꿔야 맞다."},
+    {n:"(3)", ans:"O", stmt:"context switch가 일어나면 현재 실행 중이던 프로세스의 상태(레지스터·PC 등)를 PCB에 저장한다. [복원]", expl:"맞다. context switch는 현재 프로세스 문맥을 **PCB에 save**하고 다음 프로세스 문맥을 **restore**한다. 이 시간은 순수 overhead."},
+    {n:"(4)", ans:"X", stmt:"입출력 완료를 기다리는 프로세스는 ready 상태로 대기한다.", expl:"I/O 완료를 기다리는 프로세스는 CPU를 줘도 진행 못 하므로 **block(blocked) 상태**로 대기한다. ready는 'CPU만 주면 바로 실행'. 'ready'를 **'block'**으로 바꿔야 맞다."},
+    {n:"(5)", ans:"O", stmt:"ready 상태의 프로세스는 CPU만 할당되면 즉시 실행될 수 있는 상태이다. [복원]", expl:"맞다. ready는 메모리 적재·자원 준비가 끝나 **CPU만 비면 곧바로 running**으로 가는 상태. block과의 핵심 차이."},
+    {n:"(6)", ans:"O", stmt:"단일 코어 기준 running 상태의 프로세스는 한 순간에 하나만 존재할 수 있다. [복원]", expl:"맞다. single core에서 running은 **한 순간 1개뿐**. ready·block에는 여러 프로세스가 동시에 있을 수 있다."},
+    {n:"(7)", ans:"X", stmt:"Spooling이 output을 저장하는 곳은 main memory이다.", expl:"Spooling은 느린 장치로 보낼 데이터를 **디스크(spool 파일)**에 모아두었다 순서대로 내보낸다. 'main memory'를 **'디스크(파일)'**로 바꿔야 맞다. (버퍼링/캐싱은 메모리)"},
+    {n:"(8)", ans:"X", stmt:"turnaround time은 프로세스의 순수 실행시간만을 의미한다.", expl:"turnaround time = **제출(도착)~완료까지 전체 경과시간**으로, 실행시간 + **ready 대기 + block 대기**까지 포함. '순수 실행시간만'이 틀린 부분."},
+    {n:"(9)", ans:"O", stmt:"throughput은 단위 시간당 완료된(처리된) 프로세스의 개수를 의미한다. [복원]", expl:"맞다. throughput(처리율) = **단위 시간당 완료 작업 수**. context switch 오버헤드가 커지면 throughput이 떨어진다 — (1)번 함정과 연결."},
+    {n:"(10)", ans:"X", stmt:"시스템 콜 호출 시 참조하는 표는 interrupt vector table이다.", expl:"시스템 콜은 콜 번호로 **system call table(sys_call_table)**을 인덱싱해 커널 함수를 찾는다. interrupt vector table은 인터럽트별 ISR 주소표라 역할이 다르다. 'interrupt vector table'을 **'system call table'**로 바꿔야 맞다."}
+   ],
+   a:"틀린 것 6개 = (1)(2)(4)(7)(8)(10) / 옳은 것 = (3)(5)(6)(9).\n(1) X — multiprogramming이 아니라 throughput과 관련(짧으면 context switch↑→throughput↓)\n(2) X — new가 아니라 ready 상태에서 스케줄러 실행\n(4) X — ready가 아니라 block 상태로 대기\n(7) X — main memory가 아니라 디스크(파일)에 저장\n(8) X — 실행시간만이 아니라 ready/block 대기까지 포함(제출~완료 전체)\n(10) X — interrupt vector table이 아니라 system call table",
+   expl:"단골 함정: ready vs block(I/O 대기는 block) / turnaround=대기 포함 / Spooling=디스크 / system call table≠interrupt vector table / time slice는 throughput·응답성 관련(multiprogramming 아님).",
+   crit:"맞은 보기 각 2점(총 20점). 틀린 것은 **번호 + 올바른 내용(이유)**까지 써야 만점.\n**필수 키워드** — (1) throughput / (2) ready / (4) block / (7) 디스크(파일) / (8) 대기시간 포함 / (10) system call table"},
 
   {n:"2", pts:"10점", tags:["입출력","순서배열","인터럽트"],
    q:"프로세스가 시스템 콜/인터럽트로 커널에 진입해 처리되고 다시 사용자 프로세스로 복귀하기까지의 과정을, 아래 ①~⑩을 올바른 순서로 배열하시오. [추론 복원]\n① trap처리 급한 부분  ② trap처리 급하지 않은 부분  ③ D1처리 급한 부분  ④ D1처리 급하지 않은 부분  ⑤ D2처리 급한 부분  ⑥ D2처리 급하지 않은 부분  ⑦ Interrupt handler  ⑧ 스케줄러  ⑨ 시스템 체크  ⑩ 컨텍스트 스위치",
@@ -163,10 +177,19 @@ window.EXAMS_DATA = [
    crit:"페이지당 5점, 총 15점.",
    expl:"TLB hit은 메모리 1회. miss는 2단계 테이블(2회)+데이터(1회). page fault면 디스크 접근(10,000)까지 추가."},
 
-  {n:"6", pts:"5점 (각 2.5점)", tags:["파일관리","OX"],
-   q:"파일 시스템의 인덱스 할당과 파일 수정에 관한 다음 (1)~(5) 중 틀린 것을 모두 고르시오. [추론 복원]\n(4) 인덱스 할당 방식에서 블록 주소는 direct field의 마지막 자리에 기록된다. [추론]\n(5) 파일 내용을 수정하면 데이터 블록만 수정하면 된다. [추론]",
-   a:"틀린 것: (4) — direct field의 (마지막이 아니라) 첫 자리에 기록됨.\n(5) — 파일 내용(데이터 블록) 외에 FCB(inode)도 수정해야 함(크기·수정시각 등).",
-   crit:"하나당 2.5점, 총 5점."},
+  {n:"6", pts:"5점 (각 1점)", tags:["파일관리","OX"],
+   q:"파일 인덱스 할당·수정 OX — 틀린 것을 모두 고르시오.",
+   oxIntro:"(1)~(5) 중 틀린 것을 모두 고르고 이유를 쓰시오. (일부 보기는 추론 복원)",
+   ox:[
+    {n:"(1)", ans:"O", stmt:"인덱스 할당(indexed allocation)은 inode의 index block을 통해 파일의 각 데이터 블록 위치를 가리킨다. [복원]", expl:"맞다. 파일마다 **index block(inode 내 포인터 배열)**을 두고 그 포인터들이 데이터 블록 주소를 가리킨다. 블록이 흩어져 있어도 **직접 접근(direct access)** 가능."},
+    {n:"(2)", ans:"O", stmt:"single / double / triple indirect 블록을 이용하면 매우 큰 파일도 표현할 수 있다. [복원]", expl:"맞다. direct 외에 **single·double·triple indirect**로 인덱스를 다단계 확장 → 한정된 inode로 큰 파일 표현."},
+    {n:"(3)", ans:"O", stmt:"인덱스 할당은 데이터 블록이 디스크 곳곳에 흩어져 있어도 되므로 외부 단편화가 발생하지 않는다. [복원]", expl:"맞다. 연속 할당과 달리 블록을 연속으로 둘 필요가 없어 **external fragmentation 없음**. 대신 index block 공간 비용·순차 접근 저하."},
+    {n:"(4)", ans:"X", stmt:"인덱스 할당 방식에서 블록 주소는 direct field의 마지막 자리부터 기록된다.", expl:"데이터 블록 주소는 direct 포인터 배열의 **첫 자리(앞)부터** 차례로 채운다. '마지막 자리부터'가 틀림. **'첫 자리부터'**로 바꿔야 맞다."},
+    {n:"(5)", ans:"X", stmt:"파일 내용을 수정하면 데이터 블록만 수정하면 된다.", expl:"데이터 블록뿐 아니라 **FCB(inode)** 메타데이터(**파일 크기·수정 시각 등**)도 함께 갱신해야 한다. '데이터 블록만'이 틀림."}
+   ],
+   a:"틀린 것: (4)(5) / 옳은 것: (1)(2)(3).\n(4) X — direct field의 마지막이 아니라 첫 자리부터 기록\n(5) X — 데이터 블록 외에 FCB(inode)도 수정(크기·수정시각 등)",
+   expl:"단골 함정: 인덱스 할당은 외부 단편화 없음(연속 불필요) / 파일 수정 시 inode 메타데이터(size·mtime)도 갱신.",
+   crit:"틀린 것 (4)(5) 각 채점. **필수 키워드** — (4) 첫 자리(앞)부터 기록 / (5) FCB(inode) 메타데이터(크기·수정시각) 갱신. 번호만 맞고 이유 없으면 감점."},
 
   {n:"7", pts:"10점 (각 1점)", tags:["프로세스","빈칸","용어"],
    q:"다음 빈칸에 알맞은 용어를 쓰시오. [추론 복원]\n(1) 외부 장치의 비동기적 사건 처리를 위해 현재 작업을 중단시키는 신호 = ( )\n(2) 고급언어를 기계어로 번역하는 프로그램=( ), user/kernel 모드 전환=( ), 텍스트 편집 프로그램=( )\n(3) 어느 프로세스를 실행할지 고르는 OS 구성요소=( ), 그 우선순위는 ( ) 우선순위\n(4) 프로그램 작성용 응용=( ), CPU를 다른 프로세스로 넘기는 동작=( ), 그 후 가는 상태=( ) 상태\n(5) 입출력 완료를 기다리며 가는 상태 = ( ) 상태",

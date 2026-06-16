@@ -322,8 +322,35 @@ tbody tr:hover{background:var(--surface-2)}
 .answer .a-text b{color:var(--blue-deep)}
 .answer .expl{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
 .answer .expl .a-label{color:var(--blue-strong)}
-.answer .crit{margin-top:12px;background:var(--blue-softer);border:1px solid var(--line-2);border-left:4px solid var(--blue-deep);border-radius:9px;padding:11px 14px;font-size:13.8px;color:var(--ink-2)}
+.answer .crit{margin-top:12px;background:var(--blue-softer);border:1px solid var(--line-2);border-left:4px solid var(--blue-deep);border-radius:9px;padding:11px 14px;font-size:13.8px;color:var(--ink-2);white-space:pre-wrap}
 .answer .crit .a-label{color:var(--amber)}
+.answer .crit .must{display:block;margin-top:7px;font-size:13.4px}
+.answer .crit .must b{color:var(--violet)}
+
+/* ---- OX 인터랙션 ---- */
+.ox-intro{font-size:14.5px;color:var(--ink);white-space:pre-wrap;margin-bottom:12px;font-weight:500}
+.ox-list{display:flex;flex-direction:column;gap:11px;margin:6px 0 6px}
+.ox-item{border:1px solid var(--line-2);border-radius:11px;background:var(--surface);padding:13px 15px;transition:.15s}
+.ox-item .ox-stmt{font-size:14.6px;color:var(--ink);line-height:1.62}
+.ox-item .ox-stmt .num{font-weight:800;color:var(--blue-deep);margin-right:5px}
+.ox-btns{display:flex;gap:9px;margin-top:11px}
+.ox-btns button{font:inherit;font-weight:800;font-size:14.5px;width:54px;height:38px;border-radius:9px;border:1.5px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer;transition:.12s}
+.ox-btns button:hover{border-color:var(--blue);color:var(--blue-deep)}
+.ox-btns button.pick{border-width:2px}
+.ox-item.done.ok{border-color:var(--green);background:#f2fbf5}
+.ox-item.done.no{border-color:#e6a4a4;background:#fdf4f4}
+.ox-btns button.sel-ok{background:#dff5e6;border-color:var(--green);color:#1a7a3c}
+.ox-btns button.sel-no{background:#fce8e8;border-color:#d77;color:#b23}
+.ox-btns button.show-ans{outline:2px dashed var(--green);outline-offset:1px}
+.ox-verdict{margin-top:10px;font-size:13.6px;font-weight:700;display:none}
+.ox-item.done .ox-verdict{display:block}
+.ox-verdict .vok{color:#1a7a3c}
+.ox-verdict .vno{color:#b23}
+.ox-expl{margin-top:7px;font-size:13.8px;color:var(--ink-2);line-height:1.64;display:none;padding-top:8px;border-top:1px dashed var(--line)}
+.ox-item.done .ox-expl{display:block}
+.ox-expl b{color:var(--blue-deep)}
+.ox-score{margin:14px 0 4px;font-size:14.5px;font-weight:800;color:var(--blue-deep)}
+.ox-reset{font:inherit;font-size:12.5px;font-weight:700;color:var(--muted);background:none;border:1px solid var(--line);border-radius:7px;padding:5px 11px;cursor:pointer;margin-left:10px}
 
 /* exam intro card */
 .exam-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:11px;margin-bottom:8px}
@@ -1428,7 +1455,27 @@ function viewExam(isMock){
     const aFig=callFig(it.afig);           // 정답용 그림(채워진 답) — 해설에서만 표시
     h+='<div class="q"><div class="q-head"><span class="q-badge '+(isMock?'':'ex')+'">'+it.n+'번</span><div style="flex:1"><div class="q-qtext">'+inl(it.q)+'</div>'+qFig+'<div class="q-tags"><span class="pts">'+it.pts+'</span>';
     (it.tags||[]).forEach(t=>h+='<span>'+t+'</span>');
-    h+='</div></div></div><div class="q-body"><button class="reveal-btn" onclick="toggleAns(\''+gid+'\')">'+ICON.key+' 정답'+(it.crit?' · 채점기준':'')+' 보기</button>';
+    h+='</div></div></div><div class="q-body">';
+
+    // ---- OX 인터랙션 문항 ----
+    if(it.ox && it.ox.length){
+      if(it.oxIntro) h+='<div class="ox-intro">'+inl(it.oxIntro)+'</div>';
+      h+='<div class="ox-list" id="'+gid+'_ox">';
+      it.ox.forEach((o,oi)=>{
+        const oid=gid+'_o'+oi;
+        h+='<div class="ox-item" id="'+oid+'" data-ans="'+o.ans+'">'
+          +'<div class="ox-stmt"><span class="num">'+(o.n||('('+(oi+1)+')'))+'</span>'+inl(o.stmt)+'</div>'
+          +'<div class="ox-btns"><button onclick="answerOX(\''+oid+'\',\'O\')">O</button><button onclick="answerOX(\''+oid+'\',\'X\')">X</button></div>'
+          +'<div class="ox-verdict"></div>'
+          +'<div class="ox-expl"><b>정답 '+o.ans+'</b> — '+inl(o.expl)+'</div>'
+          +'</div>';
+      });
+      h+='</div><div class="ox-score" id="'+gid+'_score" style="display:none"></div>';
+      h+='<button class="reveal-btn" onclick="toggleAns(\''+gid+'\')">'+ICON.key+' 전체 정답·채점기준 보기</button>';
+    } else {
+      h+='<button class="reveal-btn" onclick="toggleAns(\''+gid+'\')">'+ICON.key+' 정답'+(it.crit?' · 채점기준':'')+' 보기</button>';
+    }
+
     h+='<div class="answer" id="'+gid+'"><div class="a-label">'+ICON.check+' 정답</div><div class="a-text">'+inl(it.a)+'</div>';
     if(aFig) h+=aFig;
     if(it.expl) h+='<div class="expl"><div class="a-label">'+ICON.bulb+' 해설</div><div class="a-text">'+inl(it.expl)+'</div></div>';
@@ -1508,6 +1555,48 @@ function pickOpt(el){
   else{el.classList.add('wrong');opts.forEach(o=>{if(o.dataset.correct==='1')o.classList.add('correct');});}
 }
 function toggleAns(id){const a=document.getElementById(id);if(a)a.classList.toggle('show');}
+function answerOX(oid,pick){
+  const el=document.getElementById(oid);
+  if(!el)return;
+  const ans=el.getAttribute('data-ans');
+  const ok=(pick===ans);
+  el.classList.add('done');el.classList.toggle('ok',ok);el.classList.toggle('no',!ok);
+  // 버튼 표시: 고른 것 강조, 정답 버튼 표시
+  const btns=el.querySelectorAll('.ox-btns button');
+  btns.forEach(b=>{
+    const v=b.textContent.trim();
+    b.classList.remove('sel-ok','sel-no','show-ans','pick');
+    if(v===pick){ b.classList.add('pick', ok?'sel-ok':'sel-no'); }
+    if(v===ans){ b.classList.add('show-ans'); }
+  });
+  const vd=el.querySelector('.ox-verdict');
+  if(vd) vd.innerHTML = ok ? '<span class="vok">✓ 정답!</span>' : '<span class="vno">✗ 오답 — 정답은 '+ans+'</span>';
+  updateOXScore(oid);
+}
+function updateOXScore(oid){
+  const list=oid.replace(/_o\d+$/,'_ox');
+  const wrap=document.getElementById(list);
+  if(!wrap)return;
+  const items=wrap.querySelectorAll('.ox-item');
+  const done=wrap.querySelectorAll('.ox-item.done');
+  const score=document.getElementById(list.replace(/_ox$/,'_score'));
+  if(score && done.length===items.length){
+    const right=wrap.querySelectorAll('.ox-item.done.ok').length;
+    score.style.display='block';
+    score.innerHTML=ICON.check+' 결과: '+right+' / '+items.length+' 정답 <button class="ox-reset" onclick="resetOX(\''+list+'\')">다시 풀기</button>';
+  }
+}
+function resetOX(listId){
+  const wrap=document.getElementById(listId);
+  if(!wrap)return;
+  wrap.querySelectorAll('.ox-item').forEach(el=>{
+    el.classList.remove('done','ok','no');
+    el.querySelectorAll('.ox-btns button').forEach(b=>b.classList.remove('sel-ok','sel-no','show-ans','pick'));
+    const vd=el.querySelector('.ox-verdict'); if(vd) vd.innerHTML='';
+  });
+  const score=document.getElementById(listId.replace(/_ox$/,'_score'));
+  if(score) score.style.display='none';
+}
 function setChap(c){
   saveState();                       // 현재 챕터 스크롤 저장
   state.chap=c;render();

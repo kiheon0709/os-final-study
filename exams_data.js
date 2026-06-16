@@ -160,9 +160,9 @@ window.EXAMS_DATA = [
 
   {n:"3", pts:"15점", tags:["파일+메모리","서술"],
    q:"(1) 파일의 디스크 블록 할당 방식인 Contiguous allocation과, 빈 공간 관리 기법인 counting 방식의 유사점과 차이점을 설명하시오.\n(2) Thrashing 발생 시 처리 방법과 memory compaction이 공통적으로 필요로 하는 메모리 관리 기술은 무엇이며, 이를 가능하게 하는 주소 결정(binding) 방법의 이름은 무엇인가?",
-   a:"(1) 유사점: Contiguous allocation과 counting 모두 '시작 블록 번호 + 연속된 블록 수'로 디스크 블록 영역을 표시함.\n    차이점: Contiguous allocation은 파일의 내용(데이터 영역)을 표시하고, counting은 빈(free) 데이터 블록 영역을 표시할 때 이용됨.\n(2) 공통 필요 기술: relocation(재배치).\n    가능하게 하는 주소 결정 방법: execution time binding(실행 시간 바인딩).",
-   crit:"(1) 8점(유사·차이 각 4점), (2) 7점. 총 15점.",
-   expl:"relocation은 execution time binding에서만 가능 → thrashing 처리(suspend/swap)와 compaction 둘 다 프로세스를 옮겨야 하므로 relocation 필요."},
+   a:"(1) **유사점**: Contiguous allocation과 counting 모두 영역을 **'시작 블록 번호 + 연속된 블록 개수'** 형태로 표현(연속 블록 묶음을 가리킴).\n   **차이점**: Contiguous allocation은 **파일이 점유한 데이터 영역(used)**을, counting은 **비어 있는 free 블록 영역**을 관리(용도가 used vs free로 반대).\n(2) 공통 필요 기술: **relocation(재배치)**. 가능하게 하는 주소 결정: **execution time binding(실행 시간 바인딩)**.",
+   crit:"(1) 8점 — 유사점(시작주소+개수 표현) 4점, 차이점(used vs free) 4점. (2) 7점 — **relocation**과 **execution time binding** 두 용어 모두 있어야 만점.\n**필수 키워드** — 시작블록+블록수, used vs free, relocation, execution time binding.",
+   expl:"relocation(실행 중 프로세스를 다른 물리주소로 이동)은 execution time binding에서만 가능(MMU가 실행 시점에 주소 변환). thrashing 처리(suspend/swap)와 compaction은 둘 다 프로세스를 옮겨야 하므로 relocation 필수. 함정: compile/load time binding으론 relocation 불가."},
 
   {n:"4", pts:"25점", tags:["가상메모리","계산","TLB","그림"],
    q:"2단계 페이지 테이블 + TLB를 이용한 주소 변환에 대해,\n(1) Logical address를 page number와 page offset으로 나누고 각 필드의 이름과 비트 길이를 쓰시오.\n(2) outer page table·page table·TLB를 거쳐 logical → physical address로 변환되는 전체 절차를, 이름·비트 길이·각 단계 주소 값과 함께 그림으로 완성하시오. [추론 보강]",
@@ -193,8 +193,9 @@ window.EXAMS_DATA = [
 
   {n:"7", pts:"10점 (각 1점)", tags:["프로세스","빈칸","용어"],
    q:"다음 빈칸에 알맞은 용어를 쓰시오. [추론 복원]\n(1) 외부 장치의 비동기적 사건 처리를 위해 현재 작업을 중단시키는 신호 = ( )\n(2) 고급언어를 기계어로 번역하는 프로그램=( ), user/kernel 모드 전환=( ), 텍스트 편집 프로그램=( )\n(3) 어느 프로세스를 실행할지 고르는 OS 구성요소=( ), 그 우선순위는 ( ) 우선순위\n(4) 프로그램 작성용 응용=( ), CPU를 다른 프로세스로 넘기는 동작=( ), 그 후 가는 상태=( ) 상태\n(5) 입출력 완료를 기다리며 가는 상태 = ( ) 상태",
-   a:"(1) interrupt\n(2) compiler / mode change(mode switch) / editor\n(3) scheduler(process/CPU scheduler) / higher\n(4) editor / context switch / ready\n(5) block",
-   crit:"하나당 1점, 총 10점."},
+   a:"(1) **interrupt**\n(2) **compiler** / **mode change(mode switch)** / **editor**\n(3) **scheduler**(process/CPU scheduler) / **higher**(더 높은)\n(4) **editor** / **context switch** / **ready** 상태\n(5) **block**(blocked) 상태",
+   crit:"빈칸 하나당 1점, 총 10점.\n**필수 정답** — interrupt / compiler / mode switch / editor / scheduler / higher / editor / context switch / ready / block.",
+   expl:"핵심 구분: CPU를 양보당해 다시 실행 가능하면 **ready**, I/O 등 사건을 기다리면 **block**. interrupt는 비동기(외부 장치 발) — 동기적 trap(시스템 콜·예외)과 구분."},
 ]},
 
 /* ============================ 2020 ============================ */
@@ -269,9 +270,9 @@ window.EXAMS_DATA = [
 
   {n:"2", pts:"0~7점", tags:["입출력","서술","device driver"],
    q:"운영체제를 개발할 때 세상의 모든 입출력 장치 제어 기능을 운영체제 안에 다 포함하도록 구현하는 것이 불가능한 이유를 설명하고, device driver를 kernel의 I/O subsystem과 분리해 구현하는 방식의 장점을 설명하시오.",
-   a:"미래에 등장할 장치까지 모든 장치를 OS가 미리 다 제어할 수는 없다. 그래서 장치 제어 기능을 device driver로 분리하고, 장치 제조사가 직접 driver를 구현해 kernel에 덧붙일 수 있게 한다. 이렇게 하면 OS는 어떤 새 장치든 (driver만 추가하면) 일관된 방법으로 제어할 수 있다.",
-   crit:"설명 정확도 0~7점.",
-   expl:"이것이 곧 DDI(Device Driver Interface) — device I/O를 device file I/O로 추상화하는 이유."},
+   a:"**불가능한 이유**: 입출력 장치는 종류가 매우 많고 **미래에 새로 등장할 장치까지 OS가 미리 다 알 수 없으므로**, 모든 장치 제어 코드를 OS 안에 내장하는 것은 불가능하다.\n**분리 방식의 장점**: 장치별 제어 로직을 **device driver로 분리**하면 ① 제조사가 **자기 장치 driver를 직접 구현해 kernel에 plug-in**하고 ② kernel I/O subsystem은 **표준 인터페이스(DDI)**만 정의하면 되어, 새 장치가 나와도 **OS 본체를 수정·재컴파일하지 않고** 일관되게 제어(확장성·이식성).",
+   crit:"불가능 이유(미래/모든 장치를 미리 알 수 없음) + 분리 장점(제조사 driver 구현·표준 인터페이스로 OS 무수정 확장).\n**필수 키워드** — 미래 장치 예측 불가, device driver 분리, 표준 인터페이스(DDI), OS 본체 수정 없이 확장.",
+   expl:"이것이 **DDI(Device Driver Interface)** — device I/O를 device file I/O로 추상화해 통일된 read/write로 모든 장치를 다룸. 새 장치 = 새 driver 추가만으로 지원."},
 
   {n:"3", pts:"10점", tags:["파일관리","비교표","그림"],
    q:"contiguous allocation과 indexed allocation을 비교하는 아래 표의 빈 칸을 채우시오. (file size 증가 용이성 / External fragmentation 가능 여부 / 안정성 / 필요한 data block 공간 / 순차 access 속도)",
@@ -295,8 +296,9 @@ window.EXAMS_DATA = [
 
   {n:"5", pts:"10점", tags:["입출력","빈칸"],
    q:"빈 칸에 들어갈 용어를 쓰시오.\n(1) 최근 access한 디스크 블록을 저장하는 커널 메모리 공간으로 디스크 입출력 성능을 높이는 것은 ( )이다.\n(2) 수업에서 배운 입출력 제어 방법 3가지는 ( ), ( ), ( )이고, 일반 응용 프로그램에 이용되는 것은 이 중 ( )이다.",
-   a:"(1) buffer cache (disk cache, 디스크 캐시)\n(2) programmed I/O(polling), interrupt-driven I/O, DMA / 일반 응용에 이용 = interrupt-driven I/O",
-   crit:"칸별 채점, 총 10점."},
+   a:"(1) **buffer cache**(disk cache, 디스크 캐시)\n(2) 세 가지 = **programmed I/O(polling)**, **interrupt-driven I/O**, **DMA** / 일반 응용에 이용되는 것 = **interrupt-driven I/O**.",
+   crit:"(1) 1칸, (2) 4칸(방법 3 + 일반 응용 1), 총 10점.\n**필수 정답** — buffer cache / programmed I/O·interrupt-driven I/O·DMA / (일반 응용) interrupt-driven I/O.",
+   expl:"buffer cache는 최근 디스크 블록을 메모리에 캐싱해 반복 접근 가속. I/O 3방식: programmed I/O=busy waiting(비효율), interrupt-driven=완료 시 인터럽트(일반 응용 적합), DMA=대용량을 CPU 개입 없이. 함정: 일반 응용용을 DMA로 적기."},
 
   {n:"6", pts:"20점", tags:["메모리","계산","페이징","그림"],
    q:"16bit address, page size 2,048byte 시스템에서 logical address = 0010 0110 0001 0110 이고 page table이 (0→4, 1→15, 2→6, 3→27, 4→3, 5→14, 6→10) 일 때, physical address를 이진수로 구하는 과정을 그림으로 보이시오.",
@@ -328,15 +330,15 @@ window.EXAMS_DATA = [
   {n:"2", pts:"15점", tags:["파일관리","계산","inode","그림"],
    q:"FCB를 UNIX inode처럼 사용하는 파일시스템에서, (1) 주어진 inode의 direct/indirect 구조를 따라 특정 논리 블록 번호에 해당하는 실제 디스크 블록 번호를 구하시오. (2) block size 4096byte, 블록 주소 4byte일 때 single/double/triple indirect로 표현 가능한 최대 파일 크기를 계산 과정과 함께 구하시오.",
    qfig: examFigInodeAddr,
-   a:"한 인덱스 블록당 주소 개수 = 4096 / 4 = 1024개.\n- direct(10개): 10블록\n- single indirect: 1024블록\n- double indirect: 1024² = 1,048,576블록\n- triple indirect: 1024³ = 1,073,741,824블록\n최대 파일 크기 = (10 + 1024 + 1024² + 1024³) × 4096 byte ≈ 4 TB.\n(1) inode의 direct 필드/단계별 인덱스 블록을 따라가 해당 논리 블록의 실제 디스크 블록 번호를 매핑.",
-   crit:"답안지 기준. 한 블록당 1024개, 각 단계 합산이 핵심.",
-   expl:"block size 4KB·주소 4byte → 슬롯 1024개. 단계마다 ×1024."},
+   a:"**핵심 공식**: 최대 파일 크기 = (direct + single×N + double×N² + triple×N³) × block_size, N = block_size / 주소크기.\n\n**(1) 논리→물리 블록 매핑** (인덱스 블록당 주소 수 N = 4096/4 = 1024):\n- L < 10 → **direct**: inode의 direct[L] 값이 곧 디스크 블록 번호.\n- 10 ≤ L < 10+1024 → **single indirect**: 인덱스 블록 읽어 (L−10)번째 주소.\n- 그 위 ≤ +1024² → **double indirect**: 인덱스 2단계.\n- 그 위 ≤ +1024³ → **triple indirect**: 인덱스 3단계.\n\n**(2) 최대 파일 크기**:\n- direct 10블록 / single 1024 / double 1024²=1,048,576 / triple 1024³=1,073,741,824\n- 총 ≈ (10 + 1024 + 1024² + 1024³) × 4096 ≈ **4TB** (triple이 지배).",
+   crit:"인덱스 블록당 주소 수 **N = 4096/4 = 1024** 명시. 4단계(direct 10 / single N / double N² / triple N³) 블록 수 합산 + × block_size(4096). 최대 ≈ 4TB. (1)은 L 구간별 direct/single/double/triple 판별.\n**필수 키워드** — N=1024, 4단계 합산, ×4096, ≈4TB.",
+   expl:"block 4KB·주소 4byte → 슬롯 N=1024. 단계마다 ×1024(N,N²,N³). 함정: ① block÷주소를 빠뜨리고 1024 암기 ② direct·single·double을 빼고 triple만 계산 ③ 블록 vs byte 단위 혼동."},
 
   {n:"3", pts:"10점", tags:["입출력","디스크스케줄링","서술"],
    q:"Disk scheduling 알고리즘 중 SSTF에서 발생할 수 있는 starvation(기아)을 설명하고, 이를 방지할 수 있는 방안을 설명하시오.",
-   a:"SSTF는 현재 헤드에서 seek time이 가장 짧은(가까운) 요청을 우선 처리한다. 헤드 근처에 요청이 계속 몰리면 멀리 떨어진 요청은 무한정 처리되지 못하는 starvation이 발생한다.\n방지책: SCAN/C-SCAN(엘리베이터)처럼 헤드가 한 방향으로 끝까지 이동하며 처리하거나, 오래 기다린 요청에 aging을 적용한다.",
-   crit:"답안지 기준. starvation 정의 + 방지책(SCAN/C-SCAN, aging).",
-   expl:"SSTF=가까운 것 우선 → 먼 요청 굶음. SCAN은 방향성으로 공정성 확보."},
+   a:"**SSTF(Shortest Seek Time First)**는 현재 헤드 위치에서 **seek time이 가장 짧은(가장 가까운 실린더의) 요청**을 우선 처리한다.\n\n**Starvation 발생 원리**: 헤드 근처에 새 요청이 계속 도착하면 SSTF는 항상 가까운 요청만 선택하므로, 멀리 떨어진 요청은 계속 뒤로 밀려 **무한정 서비스받지 못하는** 기아 상태에 빠진다. 거리만 기준으로 삼고 '대기 시간'을 고려하지 않아 공정성이 깨진다.\n\n**방지책**:\n- **SCAN / C-SCAN(엘리베이터)**: 헤드가 한 방향으로 끝까지 이동하며 도중 요청을 처리 → 멀리 있는 요청도 그 방향을 지날 때 반드시 처리됨.\n- **Aging**: 요청 대기 시간을 우선순위에 반영해 오래 기다릴수록 우선 처리.",
+   crit:"① SSTF 정의(가장 가까운/seek 최소 요청 우선) ② starvation 발생 원리(가까운 요청 계속 도착→먼 요청 무한 대기) ③ 방지책(SCAN/C-SCAN 또는 aging) — 세 요소 모두 있어야 만점.\n**필수 키워드** — seek 최소 우선, 먼 요청 무한 대기, SCAN/C-SCAN(방향성) 또는 aging(대기시간 반영).",
+   expl:"SSTF=가까운 것 우선 → 거리만 보고 대기시간 무시 → 먼 요청 굶음. SCAN은 헤드를 한 방향으로 쓸고 지나가며 모든 요청을 보장해 starvation이 구조적으로 불가능. 함정: FCFS는 starvation 없지만 비효율, SSTF는 효율적이나 starvation 있음 — trade-off."},
 
   {n:"4", pts:"20점", tags:["가상메모리","계산","TLB","그림"],
    q:"32bit address 컴퓨터가 TLB를 이용하는데 page size가 16K byte라 하자. 이 시스템의 page table 엔트리 하나의 길이는 8 byte이다. Demand paging 방식을 사용할 때, (20점)\n(1) logical address 구성을 설계하시오. 각 부분의 이름·비트 수를 그림으로 보이고, 각 부분이 무엇하는 데 이용되는지를 쓰고, 비트 수 계산 과정을 보이시오.\n(2) logical address로부터 주소변환이 이루어지는 과정을 그림으로 자세히 보이시오. (별도 설명은 필요 없으나 TLB로의 입력 비트 수, 페이지 테이블의 최소·최대 인덱스 값 등을 그림에 자세히 표현할 것)\n(3) TLB 액세스 시간 0.05μs, hit ratio 0.9, 메인 메모리 액세스 시간 1μs일 때 effective access time을 수식으로 보이시오.",
@@ -347,29 +349,29 @@ window.EXAMS_DATA = [
 
   {n:"5", pts:"10점", tags:["메모리","서술","단편화"],
    q:"가상 메모리를 안 쓰는 컴퓨터의 메모리 관리에서, (1) internal fragmentation이 발생할 수 있는 메모리 관리 기법 3가지, (2) 그 장단점, (3) 그 중 external fragmentation 개수를 줄이는 기법과 이유를 쓰시오.",
-   a:"(1) 고정 분할(fixed partitioning), 페이징(paging), 버디 시스템(buddy system).\n(2) internal은 할당 블록 내부의 낭비, external은 외부에 흩어진 빈 공간. 고정 크기 할당은 external은 줄지만 internal이 생김.\n(3) 페이징 — 고정 크기 프레임으로 나눠 어디든 채울 수 있어 external fragmentation이 사실상 없음(internal만 페이지 크기 미만으로 작게 발생).",
-   crit:"답안지 기준 채점.",
-   expl:"고정분할·페이징·버디=internal. 그중 페이징이 external 제거."},
+   a:"**(1) Internal fragmentation 발생 기법 3가지**:\n- **고정 분할(fixed partitioning)** / **페이징(paging)** / **버디 시스템(buddy system)**\n- 셋 다 **고정(정해진) 크기 단위 할당** → 요청이 블록에 딱 안 맞으면 블록 내부에 빈 공간 발생.\n\n**(2) 장단점**:\n- internal = 할당된 블록 **내부** 낭비 / external = 메모리 **외부**에 흩어진 빈 공간.\n- 장점: 관리 단순, external 크게 감소/제거. 단점: 요청·블록 크기 불일치 시 internal 낭비(블록 클수록↑).\n\n**(3) External을 줄이는 기법 = 페이징**:\n- 동일 크기 **프레임**으로 나눠 **아무 빈 프레임에나 비연속 배치** → 흩어진 빈 프레임도 다 활용 → **external ≈ 0**. (마지막 페이지에 소량 internal만)",
+   crit:"(1) **고정 분할·페이징·버디 시스템** 3가지. (2) internal(내부)·external(외부) 구분 + 장단점. (3) **페이징** 지목 + 고정 프레임 비연속 배치로 external 제거 이유.\n**필수 키워드** — 고정 크기 프레임, 비연속 할당, external≈0/internal만 남음.",
+   expl:"셋 다 '고정 크기 할당→internal 발생' 공통. 페이징이 external 제거하는 이유=프레임 단위+비연속 배치. 함정: ① internal/external 반대 설명 ② 페이징은 external '제거'(줄임 아님), 대신 internal 소량 ③ 가변 분할은 external 주범이라 답 아님."},
 
   {n:"6", pts:"10점", tags:["가상메모리","페이지교체","표"],
    q:"page frame 4개를 쓰는 프로세스의 frame 정보가 아래와 같다. (1) LRU, (2) Second chance(0번부터), (3) Enhanced second chance(0번부터)로 replace될 page 번호를 구하시오.",
    qfig: examFigPageReplaceQ, afig: examFigPageReplaceAns,
-   a:"표: Page0(Load110, 최근액세스260, Ref1, Mod0), Page1(210,240,0,0), Page2(126,230,0,0), Page3(165,264,1,1).\n(1) LRU: 최근 액세스 시각이 가장 오래된(작은) → 230인 Page 2.\n(2) Second chance(0번부터, ref bit): P0(ref=1)→0으로 클리어 후 통과, P1(ref=0) → replace = Page 1.\n(3) Enhanced second chance((ref,mod) (0,0) 우선, 0번부터): P1(0,0) → replace = Page 1.\n   (P2도 (0,0)이나 0번부터 순회 시 P1을 먼저 만남)",
-   crit:"답안지 기준 채점.",
-   expl:"LRU=최근사용 최소. Second chance=ref 0 첫 만남. Enhanced=(0,0)>(0,1)>(1,0)>(1,1) 순."},
+   a:"**주어진 표**: P0(Load110, 최근260, Ref1, Mod0) P1(210,240,0,0) P2(126,230,0,0) P3(165,264,1,1).\n\n**(1) LRU** — 최근 access 시각 최소 페이지 교체: 260/240/**230**/264 → **Page 2**.\n**(2) Second chance(0번부터, ref bit만)** — ref=1은 0으로 클리어 후 통과, ref=0 첫 만남 교체: P0(ref1→클리어 통과) → P1(ref0) → **Page 1**.\n**(3) Enhanced((ref,mod) (0,0)>(0,1)>(1,0)>(1,1), 0번부터)** — (ref,mod): P0(1,0) **P1(0,0)** P2(0,0) P3(1,1). 최우선 (0,0) 중 0번부터 첫 만남 → **Page 1**. (P2도 (0,0)이나 P1이 먼저)",
+   crit:"(1) LRU=최근 access 최소 → **Page 2**(230 근거). (2) Second chance=0번부터, ref0 첫 만남 → **Page 1**. (3) Enhanced=(0,0) 최우선, 0번부터 첫 → **Page 1**. 세 답(2,1,1)+근거.",
+   expl:"LRU는 'Load 시각' 아니라 '최근 access 시각' 최소(Load 110 P0에 낚이지 말 것). Second chance는 ref=1에 2번째 기회 주는 FIFO 변형(0번 순서 결정적). Enhanced는 (0,0)이 최우선(참조·수정 안 됨→버리기 좋음), P1·P2 동급이나 인덱스 작은 P1."},
 
   {n:"7", pts:"10점", tags:["입출력","서술","system call"],
    q:"System call 처리 방법을 설명하시오. 예: 3번 시스템 콜을 사용하는 프로그램이 커널의 3번 시스템 콜에 진입하기까지의 과정을, 이용되는 자료구조와 함께 자세히 설명하시오.",
-   a:"- 사용자 프로그램이 시스템 콜 번호(3)를 레지스터에 넣고 trap/소프트웨어 인터럽트(예: int 0x80)를 실행 → user→kernel 모드 전환.\n- CPU가 IDT(Interrupt Descriptor Table)에서 해당 trap 벡터의 핸들러(system_call handler) 주소를 찾아 진입.\n- 핸들러가 레지스터의 콜 번호(3)를 인덱스로 system call table에서 실제 커널 함수 주소를 찾아 호출.\n- 처리 후 반환값을 레지스터에 담고 사용자 모드로 복귀(iret).",
-   crit:"설명 최대 4점 / 자료구조(IDT, sys_call_table) 각 2점 / 모드전환·리턴 상세 각 1점.",
-   expl:"핵심 자료구조 2개: IDT + system call table. (인터럽트는 IDT만, 시스템콜은 IDT→sys_call_table 2단계)"},
+   a:"**3번 시스템 콜 진입 과정 (자료구조 포함)**:\n1. 사용자 프로그램이 콜 **번호 3을 레지스터에 넣고** trap/소프트웨어 인터럽트(int 0x80 / syscall) 실행 → **user→kernel 모드 전환**.\n2. CPU가 **IDT(Interrupt Descriptor Table)**에서 trap 벡터에 대응하는 system_call 핸들러 주소를 찾아 진입.\n3. system_call 핸들러가 **콜 번호 3을 인덱스**로 **system call table(sys_call_table)**에서 실제 커널 함수 주소를 찾아 호출.\n4. 함수가 처리 후 **반환값을 레지스터에 담고** iret 등으로 **kernel→user 모드 복귀**.\n\n**핵심 자료구조 2개**: **IDT**(벡터→핸들러 주소), **system call table**(콜 번호→커널 함수 주소).",
+   crit:"흐름(번호를 레지스터→trap→모드전환→핸들러→테이블 조회→함수 호출→복귀) + 자료구조 **IDT**·**sys_call_table** 두 개와 역할.\n**필수 키워드** — IDT, system call table, user↔kernel 모드 전환, 2단계 매핑.",
+   expl:"본질은 '콜 번호 → IDT로 공통 핸들러 진입 → sys_call_table에서 번호로 실제 함수 분기'의 **2단계 매핑**. 함정: 일반 인터럽트는 IDT만으로 핸들러 직행이지만, 시스템 콜은 단일 system_call 핸들러로 먼저 간 뒤 sys_call_table을 한 번 더 인덱싱."},
 
   {n:"8", pts:"10점", tags:["스케줄링","계산","Gantt","표"],
    q:"다음과 같이 프로세스가 도착했을 때 ① Round Robin(time quantum 2), ② Priority scheduling(preemptive)에 대해 (1) Gantt chart를 그리고 (2) 각 프로세스의 waiting/turnaround time 표를 완성하시오. (Priority는 숫자가 작을수록 높음)",
    qfig: examFigSched19Q,
-   a:"프로세스: P1(도착0,서비스2,우선5) P2(3,6,3) P3(4,3,1) P4(4,2,2) P5(5,6,4)\n\nturnaround = 완료 − 도착, waiting = turnaround − service.\n① Round Robin(TQ=2): 도착·큐 순서를 추적해 2단위로 순환 배치.\n② Priority(preemptive): 도착마다 현재 실행 프로세스와 우선순위 비교, 더 높은(숫자 작은) 것이 오면 선점. 선점당한 프로세스는 ready queue로 복귀.\n(구체 수치는 도착·서비스 표로 간트차트를 직접 작성해 계산 — 자가 풀이용)",
-   crit:"Gantt 정확도 알고리즘당 0~2.5점(시작부터 틀리면 0.5점). 표 셀 맞은 개수당 0.25점.",
-   expl:"turnaround=완료−도착, waiting=turnaround−service. preemptive priority는 도착 시마다 비교."},
+   a:"**프로세스**: P1(도착0,서비스2,우선5) P2(3,6,3) P3(4,3,1) P4(4,2,2) P5(5,6,4). 우선순위 숫자 작을수록 높음.\n**공식**: turnaround=완료−도착, waiting=turnaround−service.\n\n**① Round Robin (TQ=2)**\n간트: P1[0–2] (idle 2–3) P2[3–5] P3[5–7] P4[7–9] P5[9–11] P2[11–13] P3[13–14] P5[14–16] P2[16–18] P5[18–20].\n완료: P1=2 P4=9 P3=14 P2=18 P5=20.\nTAT/WT: P1(2/0) P2(15/9) P3(10/7) P4(5/3) P5(15/9). 평균 TAT=9.4, WT=5.6.\n\n**② Priority (preemptive, 숫자 작을수록 우선)**\n간트: P1[0–2] (idle 2–3) P2[3–4] →t=4 P3·P4 도착, P3(우선1) 선점 → P3[4–7] P4[7–9] P2[9–14] P5[14–20].\n완료: P1=2 P3=7 P4=9 P2=14 P5=20.\nTAT/WT: P1(2/0) P2(11/5) P3(3/0) P4(5/3) P5(15/9). 평균 TAT=7.2, WT=3.4.",
+   crit:"① RR(TQ2): 순서 P1·P2·P3·P4·P5·P2·P3·P5·P2·P5, 완료 P1=2/P4=9/P3=14/P2=18/P5=20, WT=0/9/7/3/9. ② Priority preemptive: 순서 P1·P2·P3·P4·P2·P5, 완료 P1=2/P3=7/P4=9/P2=14/P5=20, WT=0/5/0/3/9. turnaround=완료−도착, waiting=TAT−service.\n**필수** — t=2~3 idle 반영, t=4 P3 선점, 공식 적용.",
+   expl:"turnaround=완료−도착, waiting=TAT−service. RR 함정: t=2 P1종료 후 t=3까지 도착 없어 CPU idle(빠뜨리면 이후 전부 어긋남). Priority preemptive 함정: 도착 시각마다 선점 재판단 — t=4 P3(우선1) 도착 시 P2(우선3) 선점, 선점된 P2는 ready로 돌아가 남은 시간 재실행. 숫자 작을수록 우선."},
 ]},
 
 /* ============================ 2018 ============================ */

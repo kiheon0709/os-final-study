@@ -239,11 +239,11 @@ window.EXAMS_DATA = [
    expl:"SSTF=가까운 것 우선 → 먼 요청 굶음. SCAN은 방향성으로 공정성 확보."},
 
   {n:"4", pts:"20점", tags:["가상메모리","계산","TLB","그림"],
-   q:"32bit address, page size 16K byte, page table이 한 페이지에 들어가도록 만든 demand paging 시스템.\n(1) logical address 구성(각 부분 이름·비트수·계산 근거)을 그림으로 보이시오.\n(2) TLB access 0.05μs, 메모리 access 1μs, hit ratio 0.9일 때 effective access time을 구하시오.",
+   q:"32bit address 컴퓨터가 TLB를 이용하는데 page size가 16K byte라 하자. 이 시스템의 page table 엔트리 하나의 길이는 8 byte이다. Demand paging 방식을 사용할 때, (20점)\n(1) logical address 구성을 설계하시오. 각 부분의 이름·비트 수를 그림으로 보이고, 각 부분이 무엇하는 데 이용되는지를 쓰고, 비트 수 계산 과정을 보이시오.\n(2) logical address로부터 주소변환이 이루어지는 과정을 그림으로 자세히 보이시오. (별도 설명은 필요 없으나 TLB로의 입력 비트 수, 페이지 테이블의 최소·최대 인덱스 값 등을 그림에 자세히 표현할 것)\n(3) TLB 액세스 시간 0.05μs, hit ratio 0.9, 메인 메모리 액세스 시간 1μs일 때 effective access time을 수식으로 보이시오.",
    afig: examFigTLB19Ans,
-   a:"(1) page size 16KB = 2¹⁴ → offset 14비트. PTE 4byte 가정 시 한 페이지에 16KB/4B = 2¹² = 4096개 → page table index 12비트. 남은 32−14−12 = 6비트 = outer index. 구성 [ p1 6 | p2 12 | offset 14 ].\n(2) EAT = (0.05 + 1) × 0.9 + (0.05 + 3) × 0.1 = 0.945 + 0.305 = 1.25 μs.\n   (TLB hit: ε+메모리1회. TLB miss: ε+페이지테이블 2회+데이터 1회 = ε+3.)",
-   crit:"답안지 기준. offset=14, 단계 비트 분할, EAT 계산.",
-   expl:"miss 시 2단계 테이블(2)+데이터(1)=메모리 3회 → +3."},
+   a:"(1) page size 16KB = 2¹⁴ → **offset 14비트** (한 페이지 안의 byte 위치 지정).\n  PTE 한 개 = 8byte → 한 페이지(16KB)에 들어가는 PTE 수 = 16KB / 8B = 2¹¹ = 2048개 → **inner index(p2) = 11비트** (안쪽 페이지테이블에서 PTE 선택).\n  남은 32 − 14 − 11 = **outer index(p1) = 7비트** (바깥 페이지테이블에서 안쪽 테이블 선택).\n  구성: [ p1 7 | p2 11 | offset 14 ].\n(2) p1(7)으로 outer table → inner table 위치, p2(11)로 inner table에서 frame#, offset(14) 그대로 붙여 physical address.\n  TLB 입력 = page number = p1+p2 = **18비트**.\n  outer 인덱스: 최소 0 ~ 최대 2⁷−1 = **127**. inner 인덱스: 최소 0 ~ 최대 2¹¹−1 = **2047**.\n(3) EAT = (0.05 + 1) × 0.9 + (0.05 + 3) × 0.1 = 0.945 + 0.305 = **1.25 μs**.\n   (TLB hit: ε+메모리 1회. TLB miss: ε + 페이지테이블 2회(outer+inner) + 데이터 1회 = ε + 3.)",
+   crit:"(1) offset 14·p2 11·p1 7 + 각 부분 용도·계산과정. (2) 변환 그림 + TLB 입력 18비트 + outer 0~127 / inner 0~2047. (3) EAT 수식 1.25μs. ※핵심: PTE 8byte → inner = 16KB/8B = 2¹¹ = 11비트 (4byte로 착각 주의).",
+   expl:"PTE 8byte가 함정. inner = log₂(page÷PTE) = log₂(16KB/8B) = 11비트. 2단계 miss 시 메모리 3회(테이블2+데이터1)."},
 
   {n:"5", pts:"10점", tags:["메모리","서술","단편화"],
    q:"가상 메모리를 안 쓰는 컴퓨터의 메모리 관리에서, (1) internal fragmentation이 발생할 수 있는 메모리 관리 기법 3가지, (2) 그 장단점, (3) 그 중 external fragmentation 개수를 줄이는 기법과 이유를 쓰시오.",

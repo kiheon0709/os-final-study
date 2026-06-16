@@ -178,11 +178,13 @@ function examFig2LevelPaging20Ans(){
   return _figWrap('2단계 페이징 비트 구성 (정답)', s, 'ans');
 }
 function examFigTLB19Ans(){
-  var s='<svg viewBox="0 0 760 130" class="figsvg">'+
-  '<text x="10" y="20" class="figsub">logical address (32 bit)</text>'+
-  _box(20,30,150,44,'p1 (6 bit)')+_box(170,30,210,44,'p2 (12 bit)')+_box(380,30,290,44,'page offset (14 bit)')+
+  var s='<svg viewBox="0 0 760 150" class="figsvg">'+
+  '<text x="10" y="20" class="figsub">logical address (32 bit) — page number = p1+p2 = 18 bit (TLB 입력)</text>'+
+  _box(20,30,150,44,'p1 (7 bit)')+_box(170,30,210,44,'p2 (11 bit)')+_box(380,30,290,44,'page offset (14 bit)')+
+  '<text x="20" y="100" class="figsub">outer index: 0 ~ 2⁷−1 = 127</text>'+
+  '<text x="380" y="100" class="figsub">inner index: 0 ~ 2¹¹−1 = 2047</text>'+
   '</svg>'+
-  '<div class="fig-note"><b>정답</b>: 16KB=2¹⁴→offset 14. PTE 4byte→16KB/4=2¹²→p2=12. p1=32−14−12=<b>6</b>. EAT=(0.05+1)×0.9+(0.05+3)×0.1=<b>1.25μs</b>.</div>';
+  '<div class="fig-note"><b>정답</b>: 16KB=2¹⁴→offset 14. PTE <b>8byte</b>→16KB/8=2¹¹→p2=11. p1=32−14−11=<b>7</b>. TLB 입력=p1+p2=18비트. outer 0~127, inner 0~2047. EAT=(0.05+1)×0.9+(0.05+3)×0.1=<b>1.25μs</b>.</div>';
   return _figWrap('TLB 2단계 페이징 (정답)', s, 'ans');
 }
 function examFigPageTrans20yAns(){

@@ -127,4 +127,15 @@ window.FINAL_DATA = [
   b:"없는 page 접근 → **blocked**(디스크 느림) → 디스크 page in(RAM 꽉 차면 victim 교체, modify=1이면 disk write) → 완료 인터럽트 → **ready** → 명령 재실행.\n**modify bit** = disk write 줄이려고(Enhanced Second Chance)"},
 ]},
 
+{sec:"스케줄링 — 3종 스케줄러·선점 (시험 단골)", color:"amber", items:[
+ {t:"3종 스케줄러 = 상태도 위치 (2020 기출·직접 출제)",
+  b:"각 스케줄러 = 상태도의 **어느 전이**인지 외우기 (2020 서술형 출제: '상태도 그리고 스케줄러 위치 표시'):\n- **long-term** = New → Ready (**admit**, 입장)\n- **medium-term** = Suspend ↔ 메모리 (**swap**, suspend/activate)\n- **short-term** = Ready → Running (**dispatch**)\n→ 키워드: **admit / swap / dispatch**. short-term만 'CPU 줄 프로세스 고르기'"},
+ {t:"short-term이 담당하는 전이는 단 하나",
+  b:"- **short-term 스케줄링 = Ready → Running (dispatch) 그 화살표뿐**\n- Running→Ready(timeout/선점), Running→Blocked(I/O 시스템콜), Running→Exit(종료)는 **short-term 아님** (각각 타이머·시스템콜이 일으킴)\n- 단, 이 전이들이 **CPU를 비워서** 그 다음 short-term을 **호출하는 계기**가 됨 (전이 주체 ≠ 호출 계기)"},
+ {t:"타임아웃 = 우선순위 불문 무조건 ready",
+  b:"running P1이 time slice 끝나면, **P1이 최고 우선순위여도** 무조건 running→ready (자리 내놓음).\n- ready 큐 enqueue → 스케줄러 재선택 → P1이 최고면 **다시 P1** 선택 → running (time slice 리셋)\n- '내려놨다 다시 집기' = ready 갔다가 다시 옴 (그냥 계속 도는 게 아님)\n- context는 **선택 전에 미리 저장**(다음이 누군지 모르니). 실제론 같은 P1이면 복원 생략 최적화 가능"},
+ {t:"우선순위 선점 — 선점형 vs 비선점형",
+  b:"running 중인데 **더 높은 우선순위가 ready에 도착**하면?\n- **선점형(preemptive)**: 즉시 뺏음 → P1 running→ready, 새 것 running (반응 빠름, switch 비용↑)\n- **비선점형(non-preemptive)**: 안 뺏음 → P1이 **스스로 끝나거나 Blocked될 때까지** 새 것은 ready 대기\n주의: 우선순위 값은 **생성 시 PCB에 이미 정해짐**. 경쟁=값 **읽어서 고르기**(값 안 바꿈), 값 변경은 **aging(시간)** 으로 따로"},
+]},
+
 ];

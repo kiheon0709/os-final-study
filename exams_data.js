@@ -79,10 +79,28 @@ window.EXAMS_DATA = [
 {id:"e2023", year:"2023", title:"2023학년도 운영체제및실습 기말고사", meta:"2023.6.14 · 45분", tag:"exam", items:[
 
   {n:"1", pts:"30점 (각 2점)", tags:["종합","OX"],
-   q:"아래 각 문항이 맞으면 O, 의미상 틀리면 X를 답지에 표시하시오. (①~⑮)\n① 폴링(polling)으로 I/O 상태를 확인하는 것이 I/O가 빨리 끝나는 경우 interrupt-driven I/O보다 효율적이다. interrupt-driven I/O는 context switch가 필요하고, 빠른 I/O는 그 context switch가 진행되는 동안 끝나버릴 수 있기 때문이다.\n② open() 시스템 콜이 호출되면 커널은 파일의 존재 여부와, 존재할 경우 그 파일의 FCB 식별자(=file system FCB list에서의 인덱스)를 알아낸다. 그 인덱스 자리의 FCB를 읽어 커널 메모리에 복사한다.\n③ Kernel I/O subsystem의 Spooling 기능은 출력 장치로 보낼 출력 내용을 메인 메모리에 저장하는 기능이다.\n④ Interrupt를 처리하는 중에 새로운 Interrupt가 발생하면 진행 중인 인터럽트 처리를 끝마친 후 Interrupt Descriptor Table을 조회한다.\n⑤ Disk scheduling 중 SCAN과 LOOK 중 매 요청을 더 효율적으로 처리하는 것은 LOOK이다. 또한 SSTF는 elevator(SCAN)와 비슷하나 SSTF는 starvation이 일어날 수 있다.\n⑥ Disk cache is the main memory area managed by the kernel. When a process requests to read a block, the kernel orders to read the disk only if the block does not exist in the disk cache.\n⑦ Compile time / load time / execution time binding 중 실행 시간이 가장 짧은 것은 compile time binding이며, 이 방식에서는 process가 다른 메모리 번지로 relocation 될 수 없다. load/execution time binding은 relocation 가능하다.\n⑧ Demand paging에서는 internal fragmentation이 발생할 수 있으나 external fragmentation은 발생하지 않는다.\n⑨ Short-term scheduler의 성능 지표 중 waiting time은 프로세스가 ready 상태에서 기다린 시간의 합이다.\n⑩ Enhanced Second Chance Algorithm은 LRU를 흉내낸 page replacement 방법인데, Second Chance(clock)보다 page fault rate를 줄이는 개선된 방법이다.\n⑪ 부모(parent)와 자식(child) 프로세스가 동시에 종료 가능한 상태일 때, 자식이 먼저 끝나는 것이 메모리 측면에서 더 좋다. 부모가 자식보다 먼저 끝나면 자식은 고아(orphan)가 되어 부모가 init 프로세스로 바뀐다.\n⑫ Round robin에서 time quantum이 짧을수록 mean response time이 줄어 interactive 프로세스에 좋을 뿐 아니라 throughput도 증가한다.\n⑬ global scope 가변할당(variable allocation)은 시스템 효율과 프로세스의 프레임 활용 측면에서 둘 다 좋은 방법이며, 빈 프레임이 없으면 다른 프로세스의 페이지를 victim으로 고른다.\n⑭ 페이지 폴트가 발생했던 프로세스가 나중에 다시 실행되면, page fault가 발생한 당시 명령(instruction)을 다시 실행한다.\n⑮ Dynamic memory allocation에서 best fit이 first fit보다 메모리 활용성이 좋고 할당 시간도 적게 걸린다.",
-   a:"① X — 폴링은 빠른 I/O라도 CPU가 계속 busy waiting으로 점유하므로 비효율적.\n② O — open 시 FCB를 커널 메모리로 복사하는 절차 맞음.\n③ X — Spooling은 메인 메모리가 아니라 디스크(보조기억장치)에 저장함.\n④ X — 진행 중 인터럽트를 끝마치기 전(처리 도중)에 새 인터럽트를 처리 시작(중첩 인터럽트).\n⑤ O — LOOK이 더 효율적, SSTF는 starvation 위험.\n⑥ O — disk cache 정의 정확.\n⑦ X — compile time binding이 실행은 빠를 수 있으나, '실행 시간이 가장 짧다'와 relocation 설명 조합에서 오류. (compile time은 relocation 불가는 맞음 → 출제 의도상 X)\n⑧ O — demand paging은 internal만 발생, external 없음.\n⑨ O — waiting time = ready 상태 대기 시간 합.\n⑩ O — Enhanced second chance가 clock보다 개선.\n⑪ O — orphan → init 입양 맞음.\n⑫ X — quantum이 짧으면 context switch 증가로 throughput은 오히려 감소.\n⑬ O — global 가변할당 + victim 선택 설명 맞음.\n⑭ O — page fault 명령 재실행 맞음.\n⑮ X — best fit은 전체 탐색이라 first fit보다 느림.",
-   crit:"답안키: ①X ②O ③X ④O ⑤O ⑥O ⑦X ⑧O ⑨O ⑩O ⑪O ⑫X ⑬O ⑭O ⑮X (하나당 2점).",
-   expl:"단골 함정: ①(폴링 비효율) ③(spooling=디스크) ④(중첩 인터럽트) ⑫(짧은 quantum→throughput↓) ⑮(best fit 느림)."},
+   q:"종합 OX — 맞으면 O, 틀리면 X. (①~⑮)",
+   oxIntro:"아래 각 문항이 맞으면 O, 틀리면 X를 고르고, 틀린 것은 '왜' 틀렸는지 설명할 수 있어야 합니다.",
+   ox:[
+    {n:"①", ans:"O", stmt:"폴링(polling)으로 I/O 상태를 확인하는 것이 I/O가 빨리 끝나는 경우 interrupt-driven I/O보다 효율적이다. interrupt-driven I/O는 context switch가 필요하고, 빠른 I/O는 그 context switch가 진행되는 동안 끝나버릴 수 있기 때문이다.", expl:"맞다. **빠른 I/O**에서는 interrupt 방식의 **context switch 오버헤드**가 I/O 완료 시간보다 더 클 수 있어, **CPU가 직접 반복 확인하는 polling**이 오히려 효율적이다. (느린 I/O는 반대로 interrupt가 유리 — busy waiting 낭비가 크므로)"},
+    {n:"②", ans:"O", stmt:"open() 시스템 콜이 호출되면 커널은 파일의 존재 여부와, 존재할 경우 그 파일의 FCB 식별자(=file system FCB list에서의 인덱스)를 알아낸다. 그 인덱스 자리의 FCB를 읽어 커널 메모리에 복사한다.", expl:"맞다. **open()**은 디스크의 **FCB(=inode)**를 찾아 그 **복사본을 커널 메모리로** 올린다. 이후 read/write는 이 메모리 복사본을 쓰고 **close 시 변경분을 디스크로 백업**한다."},
+    {n:"③", ans:"X", stmt:"Kernel I/O subsystem의 Spooling 기능은 출력 장치로 보낼 출력 내용을 메인 메모리에 저장하는 기능이다.", expl:"틀리다. **Spooling**은 출력 내용을 **메인 메모리가 아니라 디스크(보조기억장치)**의 spool 영역에 모아두었다가 장치가 준비되면 내보낸다. '메인 메모리'를 **'디스크'**로 바꿔야 맞다. (cf. 버퍼링/캐싱은 메모리)"},
+    {n:"④", ans:"X", stmt:"Interrupt를 처리하는 중에 새로운 Interrupt가 발생하면 진행 중인 인터럽트 처리를 끝마친 후 Interrupt Descriptor Table을 조회한다.", expl:"틀리다. 더 높은 우선순위 인터럽트는 진행 중 처리를 **끝마치기 전에 중첩(nested)으로 선점**해 처리할 수 있다. '끝마친 후'가 아니라 **'도중에라도 IDT 조회·중첩 처리'**가 맞다."},
+    {n:"⑤", ans:"O", stmt:"Disk scheduling 중 SCAN과 LOOK 중 매 요청을 더 효율적으로 처리하는 것은 LOOK이다. 또한 SSTF는 elevator(SCAN)와 비슷하나 SSTF는 starvation이 일어날 수 있다.", expl:"맞다. **LOOK**은 마지막 요청까지만 가고 끝까지 가지 않아 SCAN보다 불필요한 이동이 적다. **SSTF**는 가까운 요청만 처리해 먼 요청에 **starvation(기아)**이 생길 수 있다."},
+    {n:"⑥", ans:"O", stmt:"Disk cache is the main memory area managed by the kernel. When a process requests to read a block, the kernel orders to read the disk only if the block does not exist in the disk cache.", expl:"맞다. **disk cache**는 커널이 관리하는 **메인 메모리 영역**으로, 요청 블록이 **캐시에 있으면 디스크를 안 읽고**, 없을 때(miss)만 디스크 I/O를 한다."},
+    {n:"⑦", ans:"X", stmt:"Compile time / load time / execution time binding 중 실행 시간이 가장 짧은 것은 compile time binding이며, 이 방식에서는 process가 다른 메모리 번지로 relocation 될 수 없다. load/execution time binding은 relocation 가능하다.", expl:"틀리다. **compile time binding이 relocation 불가**한 것은 맞으나, **'실행 시간이 가장 짧다'는 단정**이 오류로 채점됨. 핵심은 compile time = 절대주소 고정 → **재배치·compaction 불가**, load/execution time = 재배치 가능."},
+    {n:"⑧", ans:"O", stmt:"Demand paging에서는 internal fragmentation이 발생할 수 있으나 external fragmentation은 발생하지 않는다.", expl:"맞다. **paging**은 고정 크기 프레임이라 마지막 페이지에서 **internal fragmentation**만 생기고, 어디든 적재 가능해 **external fragmentation은 없다.**"},
+    {n:"⑨", ans:"O", stmt:"Short-term scheduler의 성능 지표 중 waiting time은 프로세스가 ready 상태에서 기다린 시간의 합이다.", expl:"맞다. **waiting time**은 **ready queue에서 CPU를 기다린 시간의 총합**이다. (block 대기·실행 시간은 제외) — 2025·2023 단골."},
+    {n:"⑩", ans:"O", stmt:"Enhanced Second Chance Algorithm은 LRU를 흉내낸 page replacement 방법인데, Second Chance(clock)보다 page fault rate를 줄이는 개선된 방법이다.", expl:"맞다. **reference bit + modify bit**까지 함께 보아 ((use,modify) 4클래스) 쓰기 비용 큰 dirty page를 보존 → clock보다 개선. (단, modify bit의 직접 목적은 disk write 절감이라는 점도 같이 기억)"},
+    {n:"⑪", ans:"O", stmt:"부모(parent)와 자식(child) 프로세스가 동시에 종료 가능한 상태일 때, 자식이 먼저 끝나는 것이 메모리 측면에서 더 좋다. 부모가 자식보다 먼저 끝나면 자식은 고아(orphan)가 되어 부모가 init 프로세스로 바뀐다.", expl:"맞다. 부모가 먼저 끝나면 자식은 **orphan**이 되어 **init에 입양**된다. 자식이 먼저 끝나면 부모가 wait()로 즉시 회수해 자원 누적을 줄일 수 있다."},
+    {n:"⑫", ans:"X", stmt:"Round robin에서 time quantum이 짧을수록 mean response time이 줄어 interactive 프로세스에 좋을 뿐 아니라 throughput도 증가한다.", expl:"틀리다. quantum이 짧으면 **response time은 좋아지지만**, **context switch 급증**으로 오버헤드가 커져 **throughput은 오히려 감소**한다. 'throughput도 증가'를 **'throughput은 감소'**로 바꿔야 맞다."},
+    {n:"⑬", ans:"O", stmt:"global scope 가변할당(variable allocation)은 시스템 효율과 프로세스의 프레임 활용 측면에서 둘 다 좋은 방법이며, 빈 프레임이 없으면 다른 프로세스의 페이지를 victim으로 고른다.", expl:"맞다. **global replacement**는 전체 프레임 풀에서 victim을 골라 활용도가 높고, 빈 프레임이 없으면 **다른 프로세스의 페이지도 victim**으로 삼을 수 있다."},
+    {n:"⑭", ans:"O", stmt:"페이지 폴트가 발생했던 프로세스가 나중에 다시 실행되면, page fault가 발생한 당시 명령(instruction)을 다시 실행한다.", expl:"맞다. page fault가 나면 페이지를 적재한 뒤 **fault를 일으킨 그 명령을 처음부터 재실행(restart)**한다. 그래서 사용자는 중단을 못 느낀다."},
+    {n:"⑮", ans:"X", stmt:"Dynamic memory allocation에서 best fit이 first fit보다 메모리 활용성이 좋고 할당 시간도 적게 걸린다.", expl:"틀리다. **best fit**은 free list **전체를 탐색**하므로 **first fit보다 할당 시간이 더 길다.** '할당 시간도 적게 걸린다'를 **'더 오래 걸린다'**로 바꿔야 맞다."}
+   ],
+   a:"① O — 빠른 I/O는 polling이 context switch 오버헤드 없어 유리\n② O — open()은 디스크 FCB를 커널 메모리로 복사\n③ X — spooling은 메인 메모리가 아니라 디스크에 저장\n④ X — 우선순위 높은 인터럽트는 처리 도중 중첩 선점\n⑤ O — LOOK이 더 효율적, SSTF는 starvation 가능\n⑥ O — disk cache hit면 디스크 안 읽음\n⑦ X — compile time binding=relocation 불가, '실행시간 최단' 단정은 오류\n⑧ O — paging은 internal만, external 없음\n⑨ O — waiting time은 ready 대기 시간 합\n⑩ O — Enhanced Second Chance는 modify bit까지 고려해 개선\n⑪ O — 부모 먼저 종료 시 자식 orphan→init 입양\n⑫ X — quantum 짧으면 context switch↑로 throughput 감소\n⑬ O — global variable allocation은 다른 프로세스 페이지도 victim\n⑭ O — fault 일으킨 명령 재실행\n⑮ X — best fit은 전체 탐색이라 할당 시간 더 김",
+   expl:"단골 함정: ③ spooling=디스크(≠메인 메모리) / ④ 인터럽트 중첩(끝난 후✕→도중 선점) / ⑫ RR quantum↓ → throughput↓ / ⑮ best fit이 first fit보다 느림. ⑦은 'compile time=relocation 불가'는 맞으나 '실행시간 최단' 단정 때문에 X.",
+   crit:"각 2점. **정답(O/X)을 맞히고** + 틀린 보기는 '왜 틀렸는지'를 올바른 용어로 써야 만점.\n**필수 키워드** — ③ spooling=디스크 저장 / ④ 처리 도중 nested 선점 / ⑦ compile time=relocation·compaction 불가 / ⑫ quantum↓→context switch↑→throughput↓ / ⑮ best fit=전체 탐색→느림"},
 
   {n:"2", pts:"10점", tags:["파일관리","Grouping","그림"],
    q:"Grouping으로 파일시스템의 빈 데이터 블록들을 관리하는 운영체제가 있다. 아래와 같은 상황에서 빈 데이터 블록 3개를 할당하고 난 후의 모습을 그림으로 그리시오.",
@@ -160,10 +178,23 @@ window.EXAMS_DATA = [
 {id:"e2020", year:"2020", title:"2020학년도 1학기 운영체제및실습 기말고사", meta:"2020.6.17 · 75분 · single CPU 대상", tag:"exam", items:[
 
   {n:"1", pts:"종합 OX", tags:["종합","OX"],
-   q:"아래 각 문항 중 의미상 명백히 틀린 것이 5개 있다. 그 번호를 쓰고 어느 부분이 왜 틀렸는지 간단히 쓰시오.\n① 프로세스 속성이 PCB에 저장되듯 파일 속성은 FCB에 저장된다. FCB는 보조기억장치(디스크)에 저장되며, open 시 그 복사본을 메인 메모리에 만들어 두고 갱신하다가 close 시 디스크로 백업(write)한다.\n② Compile-time binding does not allow the memory compaction in dynamic memory management. To make the compaction possible, load-time or execution-time binding must be used.\n③ Dynamic memory allocation에서 best fit 방법은 first fit보다 메모리 활용율이 높고 속도도 빠르다.\n④ Buddy system은 2의 제곱 단위로 할당하는 방식이다. Internal fragmentation이 생기지만 빠르게 할당할 수 있고, release 시 buddy가 free면 합쳐 더 큰 free 공간으로 만든다.\n⑤ 32bit virtual memory에서 page size 4KB이면, 프로세스 생성 시 디스크에 1 Mega개(4GB/4KB) 블록을 모두 할당해 virtual address space를 저장한 후 필요한 부분만 메모리로 가져온다.\n⑥ page table은 OS가 메인 메모리에서 관리하며, 프로세스마다 하나씩 있어야 하고, 어떤 프로세스에서의 변환이든 그 프로세스를 구분하는 부분이 수반된다.\n⑦ Demand paging은 전체 page를 미리 올리지 않고 page fault 시 비로소 적재하는 방식이다. locality와 disk cache 덕에 turn-around time이 크게 느려지지 않는다.\n⑧ inode는 파일 시스템 전체에 대한 제어 정보를 저장하므로 inode가 깨지면 파일시스템을 신뢰할 수 없다.\n⑨ page fault 수를 모니터링하여 upper/lower bound 안에 들도록 한다. lower bound보다 적게 발생하면 메모리를 너무 많이 준 것이므로 일부를 회수한다.\n⑩ While the non-preemptive scheduling gives better response time, the preemptive scheduling gives better throughput.",
-   a:"틀린 것 5개:\n③ X — best fit은 전체를 탐색하므로 first fit보다 빠르지 않다(느리다).\n⑤ X — 생성 시 전체 1M 블록을 미리 할당·저장하지 않는다. demand paging으로 필요한 부분만 적재한다(혹은 user context 크기만큼만).\n⑥ X — page table은 논리주소→물리주소 변환 매핑 테이블이지 '순서적으로 연결' 같은 설명은 틀림. (출제 의도상 변환 설명 오류)\n⑧ X — 파일시스템 전체 제어 정보는 inode가 아니라 superblock에 저장.\n⑩ X — non-preemptive가 throughput이 좋고 preemptive가 response time이 좋다(위치 뒤바뀜).",
-   crit:"틀린 것 번호를 맞게 고르고 이유 정확도에 따라 각 1~4점.",
-   expl:"②④⑦은 옳은 보기. ③(best fit 느림) ⑤(전체 미리할당 X) ⑧(전체 제어=superblock) ⑩(선점/비선점 뒤바뀜)이 단골."},
+   q:"종합 OX — 의미상 틀린 것 5개를 가려내시오.",
+   oxIntro:"각 보기의 정오를 판단하고 틀린 것은 어디가 왜 틀렸는지 쓰시오. (틀린 것 5개)",
+   ox:[
+    {n:"①", ans:"O", stmt:"프로세스 속성이 PCB에 저장되듯 파일 속성은 FCB에 저장된다. FCB는 보조기억장치(디스크)에 저장되며, open 시 그 복사본을 메인 메모리에 만들어 두고 갱신하다가 close 시 디스크로 백업(write)한다.", expl:"맞다. **FCB(=inode)**는 파일 속성을 담아 **디스크에 저장**되고, **open 시 메모리로 복사**, **close 시 디스크로 백업(write-back)**된다. PCB가 프로세스 정보를 담는 것과 대응."},
+    {n:"②", ans:"O", stmt:"Compile-time binding does not allow the memory compaction in dynamic memory management. To make the compaction possible, load-time or execution-time binding must be used.", expl:"맞다. **compile-time binding**은 절대주소가 고정돼 **재배치 불가** → **compaction(압축) 불가**. 실행 중 위치를 옮기려면 **execution-time binding**(재배치 레지스터/주소변환)이 필요하다."},
+    {n:"③", ans:"X", stmt:"Dynamic memory allocation에서 best fit 방법은 first fit보다 메모리 활용율이 높고 속도도 빠르다.", expl:"틀리다. **best fit**은 가장 잘 맞는 공간을 찾으려 **free list 전체를 탐색**하므로 **first fit보다 느리다.** '속도도 빠르다'를 **'더 느리다'**로 바꿔야 맞다. (게다가 작은 조각을 많이 남겨 활용율도 항상 좋다고 보기 어렵다)"},
+    {n:"④", ans:"O", stmt:"Buddy system은 2의 제곱 단위로 할당하는 방식이다. Internal fragmentation이 생기지만 빠르게 할당할 수 있고, release 시 buddy가 free면 합쳐 더 큰 free 공간으로 만든다.", expl:"맞다. **buddy system**은 **2의 거듭제곱 크기**로 분할·할당해 **internal fragmentation**이 생기지만 분할·병합이 단순해 빠르고, **해제 시 짝(buddy)이 비면 병합(coalescing)**한다."},
+    {n:"⑤", ans:"X", stmt:"32bit virtual memory에서 page size 4KB이면, 프로세스 생성 시 디스크에 1 Mega개(4GB/4KB) 블록을 모두 할당해 virtual address space를 저장한 후 필요한 부분만 메모리로 가져온다.", expl:"틀리다. **demand paging**은 생성 시 **가상주소공간 전체(1M 블록)를 미리 디스크에 할당·저장하지 않는다.** 실제 쓰는 페이지만 **page fault 시 적재**. '전체를 모두 할당해 저장 후'를 **'필요한 부분만 요구 시 적재'**로 바꿔야 맞다."},
+    {n:"⑥", ans:"X", stmt:"page table은 OS가 메인 메모리에서 관리하며, 프로세스마다 하나씩 있어야 하고, 어떤 프로세스에서의 변환이든 그 프로세스를 구분하는 부분이 수반된다.", expl:"틀리다. page table이 메모리에 있고 프로세스마다 하나인 건 맞으나, 그 역할은 **논리주소(page#)→물리주소(frame#) 변환 매핑**이다. 변환 시 현재 실행 중인 프로세스의 page table을 그대로 쓰므로 '프로세스를 구분하는 부분이 수반된다'는 변환 설명이 오류."},
+    {n:"⑦", ans:"O", stmt:"Demand paging은 전체 page를 미리 올리지 않고 page fault 시 비로소 적재하는 방식이다. locality와 disk cache 덕에 turn-around time이 크게 느려지지 않는다.", expl:"맞다. **demand paging**은 필요한 페이지만 **fault 시 적재**. **locality(지역성)**로 fault가 드물고 **disk cache**가 디스크 접근을 줄여 전체 적재 대비 손해가 크지 않다."},
+    {n:"⑧", ans:"X", stmt:"inode는 파일 시스템 전체에 대한 제어 정보를 저장하므로 inode가 깨지면 파일시스템을 신뢰할 수 없다.", expl:"틀리다. **파일시스템 전체 제어 정보**(블록 크기·free block 목록·inode 개수 등)는 **inode가 아니라 superblock**에 있다. inode는 **개별 파일 하나의 메타데이터**. 'inode'를 **'superblock'**으로 바꿔야 맞다."},
+    {n:"⑨", ans:"O", stmt:"page fault 수를 모니터링하여 upper/lower bound 안에 들도록 한다. lower bound보다 적게 발생하면 메모리를 너무 많이 준 것이므로 일부를 회수한다.", expl:"맞다. **PFF(Page-Fault Frequency)** 기법. fault가 **lower bound보다 적으면 프레임 과다 할당** → 일부 회수, **upper bound보다 많으면 프레임 추가**."},
+    {n:"⑩", ans:"X", stmt:"While the non-preemptive scheduling gives better response time, the preemptive scheduling gives better throughput.", expl:"틀리다. 설명이 **뒤바뀜**. **preemptive(선점)**가 짧은/대화형 작업을 빨리 처리해 **response time이 좋고**, **non-preemptive**는 context switch가 적어 **throughput에 유리**. 둘을 서로 바꿔야 맞다."}
+   ],
+   a:"① O — FCB는 디스크 저장, open 시 메모리 복사, close 시 백업\n② O — compile-time binding은 compaction 불가, execution-time 필요\n③ X — best fit은 전체 탐색이라 first fit보다 느림\n④ O — buddy는 2^k 할당, internal 단편화, 해제 시 buddy 병합\n⑤ X — 생성 시 전체 할당이 아니라 demand paging으로 필요분만 적재\n⑥ X — page table은 논리→물리 변환 매핑, '프로세스 구분 수반' 설명 오류\n⑦ O — demand paging은 locality·disk cache로 turn-around 손해 적음\n⑧ X — 파일시스템 전체 제어 정보는 inode가 아니라 superblock\n⑨ O — PFF로 lower bound 미만이면 프레임 회수\n⑩ X — response time=preemptive, throughput=non-preemptive로 뒤바뀜",
+   expl:"틀린 것 5개 = ③⑤⑥⑧⑩. 단골: ③ best fit이 더 느림 / ⑤ 생성 시 전체 미할당(demand paging) / ⑥ page table 변환 설명 / ⑧ 전체 제어=superblock / ⑩ 선점·비선점과 response/throughput 짝 뒤바뀜.",
+   crit:"각 1~4점. **틀린 번호(③⑤⑥⑧⑩)를 맞히고** 이유를 올바른 용어로.\n**필수 키워드** — ③ best fit=전체 탐색→느림 / ⑤ demand paging(생성 시 전체 미할당) / ⑥ page table=논리(page#)→물리(frame#) 변환 / ⑧ superblock(≠inode) / ⑩ preemptive=response↑, non-preemptive=throughput↑"},
 
   {n:"2", pts:"10점", tags:["프로세스","상태도","그림"],
    q:"강의노트에 소개된 7개 상태로 구성된 프로세스 상태도를 그리고, 프로세스 스케줄러 3종류(long/medium/short-term)의 위치를 적절히 표시하시오. (상태 이름과 상태 변화를 정확히 쓸 것)",
@@ -187,9 +218,15 @@ window.EXAMS_DATA = [
    expl:"DMA만 데이터 전송에 CPU 비관여. polling(Programmed)만 busy waiting. device driver는 셋 다 필요."},
 
   {n:"5", pts:"각 0~5점", tags:["입출력","OX","인터럽트"],
-   q:"인터럽트 처리에 관한 다음 설명 중 틀린 것의 번호를 고르고 이유를 쓰시오.\n(1) 인터럽트가 발생하면 context switch를 하여 interrupt handler를 실행한다.\n(4) 진행 중인 인터럽트 처리를 끝마친 후 새 인터럽트 처리를 시작한다.",
-   a:"(1) X — 인터럽트 발생 시 일어나는 것은 context switch가 아니라 mode change(모드 전환)이다.\n(4) X — 진행 중 인터럽트 처리를 끝마치기 전(도중)에 새 인터럽트 처리를 시작한다(중첩 인터럽트).",
-   crit:"틀린 번호 맞게 고르고 이유 정확도 각 0~5점. 맞은 것을 틀렸다고 하면 문항당 3점 감점, 최저 0점."},
+   q:"인터럽트 처리 OX — 틀린 것을 고르고 이유를 쓰시오.",
+   oxIntro:"인터럽트 처리에 관한 설명 중 틀린 것의 번호를 고르고 이유를 쓰시오. (보기 (1),(4)만 복원됨)",
+   ox:[
+    {n:"(1)", ans:"X", stmt:"인터럽트가 발생하면 context switch를 하여 interrupt handler를 실행한다.", expl:"틀리다. 인터럽트 발생 시는 **context switch가 아니라 mode change(모드 전환)**. 현재 프로세스의 최소 상태만 저장하고 **user→kernel mode**로 전환해 같은 흐름에서 ISR을 실행한다. (context switch는 프로세스 자체를 교체하는 것 — 인터럽트 처리 후 스케줄러가 결정할 때나 일어남)"},
+    {n:"(4)", ans:"X", stmt:"진행 중인 인터럽트 처리를 끝마친 후 새 인터럽트 처리를 시작한다.", expl:"틀리다. 우선순위 높은 새 인터럽트는 진행 중 처리를 **끝마치기 전에 도중에 처리 시작**(중첩, nested). '끝마친 후'가 아니라 **'끝나기 전 선점·중첩'**이 맞다."}
+   ],
+   a:"(1) X — 인터럽트 발생 시는 context switch가 아니라 mode change(모드 전환)\n(4) X — 끝마친 후가 아니라 끝마치기 전에 우선순위 따라 새 인터럽트를 중첩 처리",
+   expl:"단골 함정: 인터럽트=context switch(✕, mode change) / 인터럽트는 끝낸 뒤 처리(✕, 끝나기 전 중첩). 둘 다 뒤집힌 서술이라 X.",
+   crit:"각 0~5점. **틀린 번호를 고르고** 이유를 올바른 용어로.\n**필수 키워드** — (1) context switch가 아니라 mode change / (4) 끝내기 전 nested(중첩) 인터럽트"},
 
   {n:"6", pts:"10점", tags:["가상메모리","계산","2단계페이징","그림"],
    q:"2단계 페이징 시스템에서 logical address가 [p1 | p2 | page offset] = [8비트 | 11비트 | 13비트]로 분할된다.\n(1) p1, p2, page offset 각각의 이름과 용도를 쓰고, 비트 길이의 계산 근거를 보이시오.\n(2) [추론] 주어진 수치로 effective access time 또는 주소 변환 과정을 계산/설명하시오.",
@@ -221,9 +258,17 @@ window.EXAMS_DATA = [
    expl:"contiguous=연속이라 외부단편화·확장 어려움이나 순차 빠름. indexed=흩어져 저장 가능해 외부단편화 없으나 인덱스 블록 추가 비용."},
 
   {n:"4", pts:"10점", tags:["입출력","OX","인터럽트"],
-   q:"인터럽트 처리에 대한 다음 ①~④ 중 틀린 것 2개를 모두 고르고 각각 틀린 이유를 쓰시오. (맞은 것을 틀렸다고 고르면 문항당 3점 감점, 최저 0점)\n① 인터럽트가 발생하면 context switch를 하여 interrupt handler를 실행함으로써 원인을 알아낸다.\n② Interrupt Descriptor Table을 거쳐 원인에 해당하는 ISR을 실행한다.\n③ 인터럽트 처리 중 새 인터럽트가 발생하면 진행 중 처리를 끝마친 후 IDT를 조회한다.\n④ 인터럽트가 여러 개 중복 발생 시 모두 끝낸 후 마지막에 process scheduler를 실행하고 user 프로그램을 실행한다.",
-   a:"틀린 것: ①, ③\n① X — 인터럽트 발생 시 일어나는 것은 context switch가 아니라 mode change.\n③ X — 진행 중 처리를 끝마치기 전(도중)에 새 인터럽트 처리를 시작한다(중첩).",
-   crit:"틀린 번호 맞게+이유 정확도 각 0~5점. 정답: ①③."},
+   q:"인터럽트 처리 OX — 틀린 것 2개를 고르고 각각 이유를 쓰시오.",
+   oxIntro:"①~④ 중 틀린 것 2개를 모두 고르고 각각 틀린 이유를 쓰시오. (맞은 것을 틀렸다고 고르면 문항당 3점 감점)",
+   ox:[
+    {n:"①", ans:"X", stmt:"인터럽트가 발생하면 context switch를 하여 interrupt handler를 실행함으로써 원인을 알아낸다.", expl:"틀리다. 인터럽트 발생 시는 **context switch가 아니라 mode change(모드 전환)**. 같은 프로세스 흐름에서 **user→kernel mode**로만 전환해 ISR을 실행한다. 'context switch'라는 용어가 오답 포인트."},
+    {n:"②", ans:"O", stmt:"Interrupt Descriptor Table을 거쳐 원인에 해당하는 ISR을 실행한다.", expl:"맞다. CPU는 인터럽트 번호로 **IDT**를 조회해 원인에 맞는 **ISR 주소**를 찾아 실행한다. 정상적인 디스패치 과정."},
+    {n:"③", ans:"X", stmt:"인터럽트 처리 중 새 인터럽트가 발생하면 진행 중 처리를 끝마친 후 IDT를 조회한다.", expl:"틀리다. 우선순위 높은 새 인터럽트는 진행 중 처리를 **끝마치기 전에 도중에 IDT 조회·중첩 처리**할 수 있다. '끝마친 후'가 틀린 부분."},
+    {n:"④", ans:"O", stmt:"인터럽트가 여러 개 중복 발생 시 모두 끝낸 후 마지막에 process scheduler를 실행하고 user 프로그램을 실행한다.", expl:"맞다. 중첩 인터럽트를 모두 처리해 마치면 **scheduler**로 다음 프로세스를 정하고 **user mode로 복귀**해 user 프로그램을 이어 실행한다. 정상 흐름."}
+   ],
+   a:"틀린 것: ①, ③\n① X — 인터럽트 발생 시는 context switch가 아니라 mode change\n② O — IDT를 거쳐 원인에 맞는 ISR 실행(정상)\n③ X — 끝마친 후가 아니라 끝마치기 전에 IDT 조회·중첩 처리\n④ O — 모두 끝낸 뒤 scheduler 실행하고 user 복귀(정상)",
+   expl:"단골 함정: ① 인터럽트=context switch(✕, mode change) / ③ 끝낸 뒤 IDT 조회(✕, 끝나기 전 중첩). 정상(②④) vs 뒤집힘(①③) 구분. 정답 ①③.",
+   crit:"10점. **틀린 것 ①③을 모두 고르고** 각각 이유를 올바른 용어로(맞은 것을 틀렸다 하면 문항당 3점 감점).\n**필수 키워드** — ① context switch가 아니라 mode change / ③ 끝내기 전 nested(중첩) 인터럽트·IDT 재조회"},
 
   {n:"5", pts:"10점", tags:["입출력","빈칸"],
    q:"빈 칸에 들어갈 용어를 쓰시오.\n(1) 최근 access한 디스크 블록을 저장하는 커널 메모리 공간으로 디스크 입출력 성능을 높이는 것은 ( )이다.\n(2) 수업에서 배운 입출력 제어 방법 3가지는 ( ), ( ), ( )이고, 일반 응용 프로그램에 이용되는 것은 이 중 ( )이다.",
@@ -243,10 +288,19 @@ window.EXAMS_DATA = [
  note:"문제지 사진이 저화질·회전이라 1~3번 일부 보기는 답안/채점기준 기준으로 의미 복원([추론]). 4~8번은 비교적 선명.", items:[
 
   {n:"1", pts:"20점 (각 4점)", tags:["종합","OX","영문"],
-   q:"다음 각 문장의 True/False를 판단하고 틀리면 이유를 쓰시오.\n① When a write operation is made by polling method, the device driver repeatedly reads the busy bit, writes a byte into the data-out register, sets the command-ready bit; the controller then sets the busy bit and does output.\n② Round robin에서 time slice가 작아질수록 throughput은 올라가고 평균 response time은 줄어든다.\n③ In interrupt-driven I/O, the kernel puts the process to sleep until data arrives and gives the CPU to another process; when the device finishes, it interrupts the CPU.\n④ 인터럽트 처리 중 새 인터럽트가 발생하면 kernel은 진행 중 루틴 복귀 후 새 인터럽트를 처리한다.\n⑤ 32bit virtual memory에서 1 Mega개 엔트리의 단순 page table을 쓸 때 주소 공간을 다 안 쓰면 메모리 낭비가 생긴다.\n⑥ Thrashing means the processor spends most of its time swapping pages in/out rather than executing instructions.",
-   a:"② X — time slice가 작아지면 context switch 오버헤드가 커져 throughput은 오히려 떨어진다(response time만 짧아짐). 'throughput이 올라간다'가 틀림.\n④ X — 진행 중 인터럽트를 끝내기 전에 (우선순위 따라) 새 인터럽트를 처리할 수 있다.\n① 폴링 write 절차 서술 — 대체로 맞음(O 계열).\n③ interrupt-driven I/O 동작 — 맞음(O).\n⑤ 단순(1단계) page table은 안 쓰는 영역도 엔트리를 차지해 메모리 낭비 — 맞음(O).\n⑥ thrashing 정의 — 맞음(O).",
-   crit:"답안지 기준 채점. 핵심 함정 ②(throughput↓), ④(중첩 인터럽트).",
-   expl:"time slice↓ → 문맥교환↑ → throughput↓, response↓. 단골."},
+   q:"종합 True/False — 맞으면 O(True), 틀리면 X(False).",
+   oxIntro:"각 문장의 True/False를 판단하고, 틀리면 이유를 올바른 용어로 설명할 수 있어야 합니다.",
+   ox:[
+    {n:"①", ans:"O", stmt:"When a write operation is made by polling method, the device driver repeatedly reads the busy bit, writes a byte into the data-out register, sets the command-ready bit; the controller then sets the busy bit and does output.", expl:"맞다(True). **폴링 write 절차**: 드라이버가 ① **busy bit가 0이 될 때까지 반복 확인**(busy-waiting) → ② **data-out register에 1바이트 쓰기** → ③ **command-ready bit set** → 컨트롤러가 **busy bit set** 후 **출력 수행**. 핸드셰이킹 순서가 정확하다."},
+    {n:"②", ans:"X", stmt:"Round robin에서 time slice가 작아질수록 throughput은 올라가고 평균 response time은 줄어든다.", expl:"틀리다(False). time slice가 작아지면 **context switch 횟수 급증** → 오버헤드로 **throughput은 오히려 감소**한다. 작아져서 좋아지는 건 **response time**뿐. 'throughput이 올라간다'가 틀린 부분."},
+    {n:"③", ans:"O", stmt:"In interrupt-driven I/O, the kernel puts the process to sleep until data arrives and gives the CPU to another process; when the device finishes, it interrupts the CPU.", expl:"맞다(True). 폴링과 달리 busy-wait하지 않고, 커널이 I/O 요청 프로세스를 **sleep(blocked)**시키고 **CPU를 다른 프로세스에 양도**. 장치가 끝나면 **인터럽트로 완료를 알림** → ISR 실행, 대기 프로세스 깨어남."},
+    {n:"④", ans:"X", stmt:"인터럽트 처리 중 새 인터럽트가 발생하면 kernel은 진행 중 루틴 복귀 후 새 인터럽트를 처리한다.", expl:"틀리다(False). 더 높은 우선순위 인터럽트는 진행 중 처리를 **끝마치기 전에 중첩(nested) 선점**해 먼저 처리할 수 있다. '진행 중 루틴 복귀 후'가 아니라 **'도중에 새 인터럽트 처리'**가 맞다."},
+    {n:"⑤", ans:"O", stmt:"32bit virtual memory에서 1 Mega개 엔트리의 단순 page table을 쓸 때 주소 공간을 다 안 쓰면 메모리 낭비가 생긴다.", expl:"맞다(True). 32비트+4KB면 page#가 20비트라 **단일 1단계 page table은 약 2²⁰≈1M개 엔트리**를 항상 통째로 가짐. 실제로 일부만 써도 **안 쓰는 영역 엔트리까지 차지** → 낭비. 그래서 **multi-level/inverted page table**을 도입."},
+    {n:"⑥", ans:"O", stmt:"Thrashing means the processor spends most of its time swapping pages in/out rather than executing instructions.", expl:"맞다(True). **thrashing 정의**: 프레임 부족으로 **page fault 폭증** → CPU가 명령 실행보다 **page swap in/out에 대부분 시간**을 씀. working-set/PFF로 multiprogramming 정도를 조절해 막는다."}
+   ],
+   a:"① O — 폴링 write 핸드셰이킹 순서 정확\n② X — time slice 작아지면 context switch↑로 throughput 하락(response time만 짧아짐)\n③ O — interrupt-driven: 프로세스 sleep 후 CPU 양도, 완료 시 인터럽트\n④ X — 진행 중 처리를 끝내기 전에 우선순위 따라 중첩 처리\n⑤ O — 단순 1단계 page table은 안 쓰는 영역도 엔트리 차지해 낭비\n⑥ O — thrashing 정의(대부분 시간을 swap in/out에 소비) 정확",
+   expl:"단골 함정: ② time slice↓ → throughput↓(올라간다✕) / ④ 인터럽트는 끝낸 뒤가 아니라 끝나기 전에 우선순위로 중첩 처리. 정상 서술(①③⑤⑥) vs 뒤집힌 서술(②④) 구분이 핵심.",
+   crit:"각 4점. **정답(O/X)을 맞히고** 틀린 것(②④)은 이유를 올바른 용어로.\n**필수 키워드** — ② context switch↑로 throughput↓ / ④ 우선순위에 따른 nested(중첩) 인터럽트, 끝내기 '전' 처리"},
 
   {n:"2", pts:"15점", tags:["파일관리","계산","inode","그림"],
    q:"FCB를 UNIX inode처럼 사용하는 파일시스템에서, (1) 주어진 inode의 direct/indirect 구조를 따라 특정 논리 블록 번호에 해당하는 실제 디스크 블록 번호를 구하시오. (2) block size 4096byte, 블록 주소 4byte일 때 single/double/triple indirect로 표현 가능한 최대 파일 크기를 계산 과정과 함께 구하시오.",

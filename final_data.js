@@ -35,7 +35,7 @@ window.FINAL_DATA = [
  {t:"중첩 시 커널 스택",
   b:"system call→disk int→clock int 순 중첩\n- Layer 1: 유저 함수 context\n- Layer 2: 시스템콜 핸들러 context\n- Layer 3: 디스크 ISR context\n→ 안쪽부터 끝나면 **iret으로 위층부터 역순 복귀**"},
  {t:"타이머 인터럽트 = 항상 스위칭?",
-  b:"**아님.** 1ms마다 오지만\n- time slice 안 끝남(count<100) → count++만 하고 복귀 (스위칭 X)\n- time slice 끝남(count==100) → running→ready + **context switch**\n저장 순서: **커널 스택 먼저(항상)** → 교체 결정 시 PCB(나중)"},
+  b:"**경로**: 매 단위 tick마다 발생 → **클럭→CPU 직통(PIC 안 거침)** → IDT(0번) → ISR에서 **time slice 만료 판단**\n**아님(매번 스위칭 X).** 1ms마다 와도:\n- time slice 안 끝남(count<100) → count++만 하고 복귀 (스위칭 X)\n- time slice 끝남(count==100) → **timeout 인터럽트** → running→ready + **context switch**\n저장 순서: **커널 스택 먼저(항상)** → 교체 결정 시 PCB(나중)"},
  {t:"iret",
   b:"Interrupt Return = 처리 끝내고 원래 자리로 복귀하는 명령.\n커널 스택 context 복원 + kernel→user 모드 복귀"},
 ]},

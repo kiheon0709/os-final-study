@@ -304,5 +304,33 @@ window.QNA = [
 
 {unit:"09", topic:"page fault · victim · 페이지 교체", star:true,
  q:"page fault 처리 흐름 (메모리 꽉 찼을 때) + victim + modify bit",
- a:"**page fault = 필요한 page가 RAM에 없을 때. demand paging이라 미리 안 올리고, 없으면 그때 디스크에서 가져옴.**\n\n**흐름**: running 중 page 없음 → page fault → 프로세스 **blocked**(디스크 I/O 느려서, CPU는 딴 프로세스) → 디스크에서 page in → **ready** → 차례 오면 **running**(그 명령 재실행).\n\n**RAM 꽉 찬 경우 (페이지 교체)**:\n- 빈 frame 없음 → 내쫓을 page(**victim**) 선택\n- victim disk write(page out) + 새 page disk read(page in) = **디스크 2번**\n- 단 victim이 **수정 안 됨(modify=0)이면 그냥 버림**(디스크에 원본 있음) → write 생략, 디스크 1번\n- → **modify bit가 중요**: disk write를 줄이려고. (Enhanced Second Chance의 핵심)\n\n**'뭘 버릴지' 정하는 게 페이지 교체 알고리즘**: FIFO/LRU/Clock/Enhanced second chance (아직 진도 전이면 곧 나옴)."}
+ a:"**page fault = 필요한 page가 RAM에 없을 때. demand paging이라 미리 안 올리고, 없으면 그때 디스크에서 가져옴.**\n\n**흐름**: running 중 page 없음 → page fault → 프로세스 **blocked**(디스크 I/O 느려서, CPU는 딴 프로세스) → 디스크에서 page in → **ready** → 차례 오면 **running**(그 명령 재실행).\n\n**RAM 꽉 찬 경우 (페이지 교체)**:\n- 빈 frame 없음 → 내쫓을 page(**victim**) 선택\n- victim disk write(page out) + 새 page disk read(page in) = **디스크 2번**\n- 단 victim이 **수정 안 됨(modify=0)이면 그냥 버림**(디스크에 원본 있음) → write 생략, 디스크 1번\n- → **modify bit가 중요**: disk write를 줄이려고. (Enhanced Second Chance의 핵심)\n\n**'뭘 버릴지' 정하는 게 페이지 교체 알고리즘**: FIFO/LRU/Clock/Enhanced second chance."},
+
+{unit:"09", topic:"페이지 교체 알고리즘 (FIFO/LRU/OPT/Clock)", star:true,
+ q:"FIFO / LRU / OPT 차이와 성능 비교",
+ a:"**셋 다 '같은 조건(reference string·프레임 수)에서 victim 고르는 기준'만 다름.** victim 적게 빼야(=page fault 적어야) 좋음.\n\n- **FIFO**: 가장 **먼저 들어온** page 빼냄 (사용 여부 무시) → 비효율\n- **LRU**: 가장 **오래 안 쓴** page 빼냄 (자주 쓰는 건 유지) → 현실적 최선\n- **OPT**: 앞으로 가장 **나중에 쓸** page 빼냄 → 이론상 최적이나 **미래를 알아야 해 구현 불가**(기준선)\n\n**성능(page fault, 적을수록 좋음)**: OPT(9) < LRU(12) < FIFO(15)\n→ **OPT > LRU > FIFO**. LRU는 과거(최근 사용) 기반 추측이라 OPT(미래)보단 못함.\n\n※ reference string = 접근하는 page 순서, 프레임 N개 = 메모리 N칸(고정)."},
+
+{unit:"09", topic:"페이지 교체 알고리즘 (FIFO/LRU/OPT/Clock)", star:true,
+ q:"프레임 늘리면 page fault 줄어든다 — FIFO도 그래? (Belady)",
+ a:"**대부분 프레임↑ → page fault↓** (메모리에 더 많이 담아 덜 쫓아냄). 직관적으로 당연.\n\n**단 FIFO는 예외 = Belady's Anomaly(벨라디 모순)**: 프레임 늘렸는데 **오히려 page fault가 늘 수도** 있음. FIFO는 사용 여부 무시하고 순서로만 빼서 순서가 꼬임.\n\n**LRU·OPT는 모순 없음**(stack algorithm) — 프레임 늘리면 항상 fault↓.\n→ 시험: 'Belady's Anomaly = FIFO'."},
+
+{unit:"09", topic:"페이지 교체 알고리즘 (FIFO/LRU/OPT/Clock)", star:true,
+ q:"Clock(Second Chance) 동작 + use bit",
+ a:"**Clock = use bit(0/1) 하나로 LRU 근사**(LRU는 정확한 시각 기록이라 오버헤드 큼 → 비트 1개로 가볍게).\n\n- **use bit = PTE 제어비트.** CPU가 page 접근 시 **하드웨어가 자동 use=1** (포인터 무관). 횟수 안 셈, 그냥 1로(2,3 안 됨).\n- **포인터 돌며**: use=1 → 0으로 클리어+통과(한 번 봐줌=second chance), use=0 → victim\n- → 방금 쓴 page(use=1)는 안 빼고 봐줌, 한동안 안 쓴 것(use=0)만 뺌. '최근 썼는데 빠지는' 일 없음.\n\n두 동작 따로: **use=1은 접근 시(하드웨어), use=0은 교체 시(포인터).**"},
+
+{unit:"09", topic:"페이지 교체 알고리즘 (FIFO/LRU/OPT/Clock)", star:true,
+ q:"Enhanced Second Chance — use, modify 우선순위",
+ a:"**use bit + modify bit 두 개를 같이 봐(조합 4가지) victim 우선순위 매김.** (비트를 합치는 게 아니라 둘을 동시에 읽음. 각 비트는 0/1 그대로)\n\n**우선순위(먼저 내보냄)**: (0,0) → (0,1) → (1,0) → (1,1)\n- **use가 1차 기준**(가중치↑): 안 쓴 것(use=0) 먼저 (LRU 정신)\n- **modify가 2차**: use 같으면 안 고친 것(modify=0) 먼저 (disk write 절약)\n- (0,1)이 (1,0)보다 먼저 = use 우선의 증거\n\n**(0,0)이 최고 victim**: 안 쓰고+안 고침 → 빼도 무손실+write 불필요. 동작: 포인터가 (0,0)부터 찾고 없으면 다음 등급 → 최대 4바퀴(돌며 use 클리어).\n\n**modify bit 핵심**: M=0이면 디스크 원본과 같아 그냥 덮어쓰면 됨 → swap out(disk write) 생략 → 비용↓."},
+
+{unit:"09", topic:"페이지 교체 알고리즘 (FIFO/LRU/OPT/Clock)",
+ q:"global vs local replacement",
+ a:"**메모리(프레임) 꽉 찬 상태에서 victim을 어디서 고르냐.**\n\n- **Local**: 그 프로세스 **자기 프레임 안에서만** victim\n- **Global**: **전체 프레임에서** victim → **다른 프로세스의 안 쓰는 page도 뺏어** 그 자리(프레임)에 자기 page 넣음\n\n주의: global은 '남의 page **데이터**가 필요'한 게 아니라 '남이 차지한 **프레임(자리)**이 필요'한 것. 뺏긴 프로세스는 그 page 다시 필요하면 page fault로 다시 가져옴(동적 공유).\n(같은 page를 같이 쓰는 sharing/COW와는 다름 — 그건 안 빼고 공유)"},
+
+{unit:"09", topic:"EAT (Effective Access Time)", star:true,
+ q:"EAT가 뭐야? TLB에서만 써?",
+ a:"**EAT(Effective Access Time) = 평균 접근 시간 정량화 도구**(확률×시간). TLB·demand paging 등 어디든 씀.\n\n- **TLB EAT**: hit율로 — 변환이 얼마나 빠른가\n  EAT = hit율×(hit시간) + miss율×(miss시간)\n  핵심: TLB miss 시 메모리 접근 = 단일 page table 2번, **2단계 3번**(테이블 2+데이터 1)\n- **demand paging EAT**: page fault rate로 — 아래 항목 참고\n\n기출 거의 매년 나오는 계산 문제."},
+
+{unit:"09", topic:"EAT (Effective Access Time)", star:true,
+ q:"demand paging EAT 식 + 각 항목 뜻",
+ a:"**EAT = (1−p)×메모리접근 + p×{ page fault overhead + swap out + swap in + restart }**\n- **p = page fault rate**(0~1). p=0 fault 없음, p=1 모두 fault. p 조금만 커져도 EAT 급증.\n\n**{ } 항목 (page fault 처리 전체)**:\n- **page fault overhead**: 순수 처리 부담(커널 진입·victim 선택 등, swap·restart 제외분)\n- **swap out**: victim 디스크로 내보내기 — **M(modify)=0이면 생략(0)** (원본과 같아 덮어쓰면 됨)\n- **swap in**: 새 page 디스크에서 가져오기 (항상)\n- **restart**: fault 났던 명령 재실행\n\n주의: 'page fault overhead'는 { } 전체가 아니라 그중 한 항목(swap/restart는 별도). page fault ⊃ replacement(replacement=꽉 찼을 때 swap out 부분)."}
 ];

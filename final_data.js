@@ -106,6 +106,8 @@ window.FINAL_DATA = [
   b:"셋은 같은 게 아니라 **순서대로 쌓인 인과**:\n- **페이징(쪼갬)** = 전제. 통짜면 일부만 못 올림 → page 단위로 잘라야 비연속·일부 적재 가능\n- **가상메모리(demand paging)** = 그 위에서 '필요한 page만 올림' → 프로세스당 프레임↓\n- **degree of multiprogramming↑** = 그래서 실제 메모리보다 많은 프로세스 동시 적재\n→ 시험: '무엇이 multiprogramming을 늘리나' = **가상메모리** / '가상메모리를 가능케 한 건' = **페이징**\n과하게 늘리면 → **thrashing**"},
  {t:"교체 알고리즘 ≠ thrashing 해결 (층위 다름·함정)",
   b:"- **교체 알고리즘**(Clock/Enhanced/LRU) = 프레임 부족 시 '**누구를 victim으로**'(선택의 질)\n- **Thrashing** = 애초에 '**프레임이 절대 부족**' → 뭘 골라도 곧 쓸 걸 내보냄 → 선택 무의미\n- Enhanced Clock은 modify=0 우선 victim → swap out **1회 비용↓**(disk write 생략)일 뿐, swap **횟수**는 못 줄임\n→ thrashing 해결 = 알고리즘 X, **프레임 확보(process suspension)·multiprogramming↓** O"},
+ {t:"Page 연속 = VAS 기준, 물리 frame은 비연속 (2D 배열 예시·함정)",
+  b:"`int A[1024][1024]` (int 4B×1024 = 4096B = **1행=1페이지**, 페이지 4KB 가정)\n- 슬라이드: 0번 행=Page n, 1번 행=Page n+1 … 처럼 **연속**\n- 이 연속은 **가상 page 번호(VAS) 기준**일 뿐!\n- 실제 **물리 frame은 페이징이라 흩어져 배치**(비연속), 일부는 아직 디스크에\n- 가상 Page n→frame17, n+1→frame3 … 처럼 page table이 매핑\n→ 그래도 **page fault 계산엔 가상 page 패턴만** 보면 됨 (fault = 그 가상 page가 메모리에 있나 없나, 물리 위치 무관)\n→ 그래서 행 우선(같은 page 쭉)=fault↓ / 열 우선(매번 다른 page 점프)=fault↑ **1000배 차이**"},
  {t:"전용 사본 vs 공유",
   b:"- **stack/data** = 변해서 프로세스 전용 사본\n- **code/kernel** = 안 변해 원본 하나 공유 (code는 실행파일에 실체 있음, 단지 전용 복사 안 함)"},
  {t:"2단계 페이지 테이블",
